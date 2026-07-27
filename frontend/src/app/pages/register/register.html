@@ -1,0 +1,59 @@
+<div class="auth-wrapper">
+  <div class="glass-container">
+    <div class="auth-header">
+      <h1>Criar Conta</h1>
+      <p>Junte-se ao AnyService e ofereça ou contrate serviços!</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      @if(errorMessage) {
+        <div class="error-banner">
+          {{ errorMessage }}
+        </div>
+      }
+
+      <div class="input-group" [class.has-error]="registerForm.get('name')?.invalid && registerForm.get('name')?.touched">
+        <label for="name">Nome Completo</label>
+        <input type="text" id="name" formControlName="name" placeholder="Ex: João da Silva">
+      </div>
+
+      <div class="input-group" [class.has-error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" formControlName="email" placeholder="nome@email.com">
+      </div>
+
+      <div class="input-group" [class.has-error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+        <label for="password">Senha</label>
+        <input type="password" id="password" formControlName="password" placeholder="Mínimo 6 caracteres">
+      </div>
+
+      <div class="input-group" [class.has-error]="(registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) || (registerForm.hasError('passwordsMismatch') && registerForm.get('confirmPassword')?.touched)">
+        <label for="confirmPassword">Confirmar Senha</label>
+        <input type="password" id="confirmPassword" formControlName="confirmPassword" placeholder="Repita a senha">
+        @if(registerForm.hasError('passwordsMismatch') && registerForm.get('confirmPassword')?.touched) {
+          <span class="field-error-text">As senhas não coincidem.</span>
+        }
+      </div>
+
+      <div class="input-group">
+        <label for="role">Eu quero...</label>
+        <select id="role" formControlName="role">
+          <option value="CLIENT">Contratar Serviços (Cliente)</option>
+          <option value="PROVIDER">Oferecer Serviços (Prestador)</option>
+        </select>
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="isLoading">
+        @if(isLoading) {
+          <span class="spinner"></span> Criando...
+        } @else {
+          Criar Conta Grátis
+        }
+      </button>
+
+      <div class="login-prompt">
+        Já tem uma conta? <a routerLink="/login">Faça Login</a>
+      </div>
+    </form>
+  </div>
+</div>

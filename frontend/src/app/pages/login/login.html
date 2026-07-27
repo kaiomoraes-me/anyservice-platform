@@ -1,0 +1,49 @@
+<div class="login-wrapper">
+  <div class="glass-container">
+    <div class="login-header">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+          <polyline points="2 17 12 22 22 17"></polyline>
+          <polyline points="2 12 12 17 22 12"></polyline>
+        </svg>
+      </div>
+      <h1>AnyService</h1>
+      <p>Bem-vindo de volta! Faça login na sua conta.</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      @if(errorMessage) {
+        <div class="error-banner">
+          {{ errorMessage }}
+        </div>
+      }
+
+      <div class="input-group" [class.has-error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" formControlName="email" placeholder="nome@email.com">
+      </div>
+
+      <div class="input-group" [class.has-error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+        <label for="password">Senha</label>
+        <input type="password" id="password" formControlName="password" placeholder="••••••••">
+      </div>
+
+      <div class="actions">
+        <a routerLink="/forgot-password" class="forgot-password">Esqueceu a senha?</a>
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="isLoading">
+        @if(isLoading) {
+          <span class="spinner"></span> Entrando...
+        } @else {
+          Entrar
+        }
+      </button>
+
+      <div class="register-prompt">
+        Não tem uma conta? <a routerLink="/register">Registre-se agora</a>
+      </div>
+    </form>
+  </div>
+</div>

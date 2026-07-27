@@ -1,0 +1,47 @@
+spring:
+  config:
+    import: optional:file:../.env[.properties]
+  application:
+    name: AnyService Backend
+  datasource:
+    # URL for PostgreSQL (the host will be localhost when running from IDE, or 'db' if both run in Docker)
+    url: jdbc:postgresql://localhost:5432/${DB_NAME:anyservice_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update # In production, this should be 'validate' and use Flyway/Liquibase
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  mail:
+    host: ${SMTP_HOST:smtp.mailtrap.io}
+    port: ${SMTP_PORT:2525}
+    username: ${SMTP_USER}
+    password: ${SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+
+logging:
+  file:
+    name: anyservice.log
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+

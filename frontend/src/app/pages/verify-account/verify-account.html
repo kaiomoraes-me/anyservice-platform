@@ -1,0 +1,34 @@
+<div class="auth-wrapper">
+  <div class="glass-container">
+    <div class="auth-header">
+      <h1>Verifique seu E-mail</h1>
+      <p>Enviamos um código de 6 dígitos para <strong>{{ email }}</strong></p>
+    </div>
+
+    <form [formGroup]="verifyForm" (ngSubmit)="onSubmit()" class="auth-form">
+      @if(errorMessage) {
+        <div class="error-banner">
+          {{ errorMessage }}
+        </div>
+      }
+      @if(successMessage) {
+        <div class="success-banner">
+          {{ successMessage }}
+        </div>
+      }
+
+      <div class="input-group" [class.has-error]="verifyForm.get('code')?.invalid && verifyForm.get('code')?.touched">
+        <label for="code">Código de Verificação</label>
+        <input type="text" id="code" formControlName="code" placeholder="000000" maxlength="6" class="text-center text-tracking">
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="isLoading || successMessage">
+        @if(isLoading) {
+          <span class="spinner"></span> Verificando...
+        } @else {
+          Ativar Conta
+        }
+      </button>
+    </form>
+  </div>
+</div>
