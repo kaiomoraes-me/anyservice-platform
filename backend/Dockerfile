@@ -14,6 +14,7 @@ COPY .mvn .mvn
 COPY pom.xml .
 
 # Baixa as dependências offline (usando cache)
+RUN chmod +x mvnw
 RUN ./mvnw dependency:go-offline
 
 # Agora copia o código fonte do projeto
