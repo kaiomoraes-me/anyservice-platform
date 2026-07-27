@@ -5,7 +5,7 @@ spring:
     name: AnyService Backend
   datasource:
     # URL for PostgreSQL (the host will be localhost when running from IDE, or 'db' if both run in Docker)
-    url: jdbc:postgresql://localhost:5432/${DB_NAME:anyservice_db}
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:anyservice_db}
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
