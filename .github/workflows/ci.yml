@@ -69,6 +69,7 @@ jobs:
           host: ${{ secrets.AWS_HOST }}
           username: ${{ secrets.AWS_USERNAME }}
           key: ${{ secrets.AWS_KEY }}
+          command_timeout: 20m
           script: |
             cd anyservice-platform
             git pull origin main
