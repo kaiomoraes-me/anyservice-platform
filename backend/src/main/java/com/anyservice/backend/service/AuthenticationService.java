@@ -42,8 +42,24 @@ public class AuthenticationService {
             );
         }
 
+        String username = request.getUsername();
+        if (username == null || !username.matches("^[a-z0-9_]+$")) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.BAD_REQUEST, 
+                "O nome de usuário (@) deve conter apenas letras minúsculas, números e underline (_)."
+            );
+        }
+
+        if (repository.existsByUsernameIdentifier(username)) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.BAD_REQUEST, 
+                "Este nome de usuário (@) já está em uso."
+            );
+        }
+
         User user = new User();
         user.setName(request.getName());
+        user.setUsernameIdentifier(username);
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.valueOf(request.getRole().toUpperCase()));

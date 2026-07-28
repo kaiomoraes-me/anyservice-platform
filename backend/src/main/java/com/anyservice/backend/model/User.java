@@ -49,6 +49,37 @@ public class User implements UserDetails {
     @Column(name = "reset_password_code_expires_at")
     private LocalDateTime resetPasswordCodeExpiresAt;
 
+    @Column(columnDefinition = "TEXT")
+    private String bio;
+
+    @Column(unique = true)
+    private String phone;
+    
+    @Column(name = "phone_visible")
+    private Boolean phoneVisible = false;
+
+    @Column(name = "phone_verified")
+    private Boolean phoneVerified = false;
+
+    @Column(name = "pending_phone")
+    private String pendingPhone;
+
+    @Column(name = "phone_verification_code")
+    private String phoneVerificationCode;
+
+    @Column(name = "phone_verification_code_expires_at")
+    private LocalDateTime phoneVerificationCodeExpiresAt;
+
+    @Column(name = "profile_picture_url")
+    private String profilePictureUrl;
+
+    // Usaremos "usernameIdentifier" para não conflitar com o getUsername() do Spring Security
+    @Column(name = "username_identifier", unique = true)
+    private String usernameIdentifier;
+
+    @Column(name = "username_last_changed_at")
+    private LocalDateTime usernameLastChangedAt;
+
     // Construtor vazio exigido pelo Hibernate (JPA)
     public User() {
     }
@@ -142,6 +173,86 @@ public class User implements UserDetails {
 
     public void setResetPasswordCodeExpiresAt(LocalDateTime resetPasswordCodeExpiresAt) {
         this.resetPasswordCodeExpiresAt = resetPasswordCodeExpiresAt;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getProfilePictureUrl() {
+        return profilePictureUrl;
+    }
+
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
+    }
+
+    public Boolean getPhoneVisible() {
+        return phoneVisible;
+    }
+
+    public void setPhoneVisible(Boolean phoneVisible) {
+        this.phoneVisible = phoneVisible;
+    }
+
+    public Boolean getPhoneVerified() {
+        return phoneVerified;
+    }
+
+    public void setPhoneVerified(Boolean phoneVerified) {
+        this.phoneVerified = phoneVerified;
+    }
+
+    public String getPendingPhone() {
+        return pendingPhone;
+    }
+
+    public void setPendingPhone(String pendingPhone) {
+        this.pendingPhone = pendingPhone;
+    }
+
+    public String getPhoneVerificationCode() {
+        return phoneVerificationCode;
+    }
+
+    public void setPhoneVerificationCode(String phoneVerificationCode) {
+        this.phoneVerificationCode = phoneVerificationCode;
+    }
+
+    public LocalDateTime getPhoneVerificationCodeExpiresAt() {
+        return phoneVerificationCodeExpiresAt;
+    }
+
+    public void setPhoneVerificationCodeExpiresAt(LocalDateTime phoneVerificationCodeExpiresAt) {
+        this.phoneVerificationCodeExpiresAt = phoneVerificationCodeExpiresAt;
+    }
+
+    public String getUsernameIdentifier() {
+        return usernameIdentifier;
+    }
+
+    public void setUsernameIdentifier(String usernameIdentifier) {
+        this.usernameIdentifier = usernameIdentifier;
+    }
+
+    public LocalDateTime getUsernameLastChangedAt() {
+        return usernameLastChangedAt;
+    }
+
+    public void setUsernameLastChangedAt(LocalDateTime usernameLastChangedAt) {
+        this.usernameLastChangedAt = usernameLastChangedAt;
     }
 
     // --- MÉTODOS DO SPRING SECURITY (UserDetails) ---

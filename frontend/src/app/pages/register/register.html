@@ -17,6 +17,17 @@
         <input type="text" id="name" formControlName="name" placeholder="Ex: João da Silva">
       </div>
 
+      <div class="input-group" [class.has-error]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
+        <label for="username">Nome de Usuário (@)</label>
+        <div class="input-with-prefix" style="display: flex; align-items: center; background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(0, 0, 0, 0.1); border-radius: 12px; overflow: hidden; transition: all 0.3s ease;">
+          <span class="prefix" style="padding: 0.8rem 0 0.8rem 1rem; color: #7f8c8d; font-weight: 600;">@</span>
+          <input type="text" id="username" formControlName="username" placeholder="seunome" style="border: none; background: transparent; flex: 1;">
+        </div>
+        @if(registerForm.get('username')?.hasError('pattern') && registerForm.get('username')?.touched) {
+          <span class="field-error-text" style="color: #e74c3c; font-size: 0.8rem; margin-top: 0.25rem;">Apenas letras minúsculas, números e _.</span>
+        }
+      </div>
+
       <div class="input-group" [class.has-error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
         <label for="email">E-mail</label>
         <input type="email" id="email" formControlName="email" placeholder="nome@email.com">

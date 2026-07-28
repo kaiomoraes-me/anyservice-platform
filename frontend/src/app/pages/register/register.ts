@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../core/auth/auth';
@@ -14,9 +14,11 @@ export class Register {
   private fb = inject(FormBuilder);
   private auth = inject(Auth);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   registerForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
+    username: ['', [Validators.required, Validators.pattern('^[a-z0-9_]+$')]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
     confirmPassword: ['', [Validators.required]],
@@ -44,6 +46,7 @@ export class Register {
       this.auth.register(userData).subscribe({
         next: (res: any) => {
           this.isLoading = false;
+          this.cdr.markForCheck();
           Swal.fire({
             title: 'Conta Criada!',
             text: 'Enviamos um código para o seu e-mail.',
@@ -57,12 +60,12 @@ export class Register {
         },
         error: (err) => {
           this.isLoading = false;
+          this.cdr.markForCheck();
           
           let errorMsg = 'Ocorreu um erro no servidor. Verifique o console ou as credenciais de e-mail.';
           
           if (err.status === 400) {
-            // O backend retorna 400 especificamente para email duplicado
-            errorMsg = 'Este e-mail já está em uso.';
+            errorMsg = err.error?.message || err.error || 'Dados inválidos. Verifique o e-mail ou o nome de usuário.';
           } else if (err.status === 500) {
              // Pode ser falha de envio de email
             errorMsg = 'Erro interno (500). Provavelmente as credenciais de e-mail do Gmail no .env estão incorretas!';

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../core/auth/auth';
@@ -14,6 +14,7 @@ export class ResetPassword implements OnInit {
   private fb = inject(FormBuilder);
   private auth = inject(Auth);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   email = '';
   isLoading = false;
@@ -52,6 +53,7 @@ export class ResetPassword implements OnInit {
       this.auth.resetPassword(payload).subscribe({
         next: (res: any) => {
           this.isLoading = false;
+          this.cdr.markForCheck();
           Swal.fire({
             title: 'Senha Redefinida!',
             text: 'Sua senha foi alterada com sucesso.',
@@ -65,6 +67,7 @@ export class ResetPassword implements OnInit {
         },
         error: (err) => {
           this.isLoading = false;
+          this.cdr.markForCheck();
           Swal.fire({
             title: 'Ops!',
             text: err.error?.message || 'Código inválido ou expirado.',

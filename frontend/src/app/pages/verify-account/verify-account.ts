@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Auth } from '../../core/auth/auth';
@@ -13,6 +13,7 @@ export class VerifyAccount implements OnInit {
   private fb = inject(FormBuilder);
   private auth = inject(Auth);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   email = '';
   errorMessage = '';
@@ -50,6 +51,7 @@ export class VerifyAccount implements OnInit {
         next: (res: any) => {
           this.isLoading = false;
           this.successMessage = 'Conta ativada com sucesso! Redirecionando...';
+          this.cdr.markForCheck();
           setTimeout(() => {
             this.router.navigate(['/login']);
           }, 2000);
@@ -57,6 +59,7 @@ export class VerifyAccount implements OnInit {
         error: (err) => {
           this.isLoading = false;
           this.errorMessage = err.error?.message || 'Código inválido ou expirado.';
+          this.cdr.markForCheck();
         }
       });
     } else {

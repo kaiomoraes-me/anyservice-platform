@@ -1,0 +1,144 @@
+<div class="profile-container">
+  <a routerLink="/dashboard" class="back-btn">← Voltar ao Menu</a>
+  <div class="glass-card">
+    <div class="profile-header">
+      <div class="avatar-container">
+        <div class="avatar-wrapper">
+          <img
+            [src]="userProfile?.profilePictureUrl || 'https://ui-avatars.com/api/?name=' + (userProfile?.name || 'User') + '&background=random&color=fff&size=150'"
+            alt="Foto de Perfil" class="avatar">
+          <label class="upload-overlay" title="Alterar foto">
+            <input type="file" accept="image/*" (change)="onFileSelected($event)" [disabled]="isLoading">
+            <span class="camera-icon">📷</span>
+          </label>
+        </div>
+        <div class="role-badge" [ngClass]="userProfile?.role?.toLowerCase()">
+          {{ userProfile?.role === 'PROVIDER' ? 'Prestador' : (userProfile?.role === 'CLIENT' ? 'Cliente' : 'Admin') }}
+        </div>
+      </div>
+      <h2>
+        <ng-container *ngIf="userProfile?.name">{{ userProfile?.name }}</ng-container>
+        <ng-container *ngIf="!userProfile?.name && isLoading">Carregando...</ng-container>
+        <ng-container *ngIf="!userProfile?.name && !isLoading">Visitante</ng-container>
+      </h2>
+      <p class="email">{{ userProfile?.email }}</p>
+      <p class="member-since" *ngIf="userProfile?.createdAt">
+        Membro desde: {{ userProfile?.createdAt | date:'mediumDate' }}
+      </p>
+    </div>
+
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form" *ngIf="!isLoading || userProfile">
+
+      <div class="form-group">
+        <label for="name">Nome Completo</label>
+        <input id="name" type="text" formControlName="name" placeholder="Seu nome" autocomplete="name">
+      </div>
+
+      <div class="form-group">
+        <label for="username">@username</label>
+        <div class="input-with-prefix">
+          <span class="prefix">@</span>
+          <input id="username" type="text" formControlName="username" placeholder="seunome">
+        </div>
+        <small class="helper-text">Você só pode mudar o seu @ a cada 14 dias.</small>
+      </div>
+
+      <div class="form-group">
+        <div class="label-with-toggle">
+          <label>Telefone</label>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="phoneVisible">
+            <span class="slider"></span>
+            <span class="toggle-label">{{ profileForm.get('phoneVisible')?.value ? 'Público' : 'Privado' }}</span>
+          </label>
+        </div>
+        <div class="phone-row">
+          <div class="input-with-prefix phone-input-group">
+            <select [(ngModel)]="phoneCountryCode" [ngModelOptions]="{standalone: true}" class="country-select">
+              <option *ngFor="let country of countries" [value]="country.code">
+                {{ country.flag }} {{ country.code }}
+              </option>
+            </select>
+            <input id="phone" type="tel" [(ngModel)]="phoneNumber" [ngModelOptions]="{standalone: true}" placeholder="9999-9999" autocomplete="tel">
+          </div>
+          <button type="button" class="verify-phone-btn" (click)="sendPhoneCode()" *ngIf="!isPhoneVerified" [disabled]="!isPhoneValid || !phoneNumber">
+            Verificar
+          </button>
+          <span class="phone-verified-badge" *ngIf="isPhoneVerified">✅ Verificado</span>
+        </div>
+        <small class="helper-text error-text" *ngIf="phoneNumber && !isPhoneValid" style="color: #e74c3c; margin-top: 5px; display: block;">
+          O formato do número de telefone é inválido para este país.
+        </small>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="bio">Biografia / Sobre mim</label>
+        <textarea id="bio" formControlName="bio" rows="4"
+          placeholder="Conte um pouco sobre você e seus serviços..."></textarea>
+      </div>
+
+      <div class="feedback-messages">
+        <div class="alert success" *ngIf="successMessage">{{ successMessage }}</div>
+        <div class="alert error" *ngIf="errorMessage">{{ errorMessage }}</div>
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="profileForm.invalid || !profileForm.dirty || isLoading">
+        @if(isLoading) {
+          <span class="spinner"></span> Salvando...
+        } @else {
+          Salvar Alterações
+        }
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal de Verificação de Telefone -->
+<div class="phone-modal-overlay" *ngIf="showPhoneModal" (click)="closePhoneModal()">
+  <div class="phone-modal" (click)="$event.stopPropagation()">
+    <h3>Verificar Número de Telefone</h3>
+    <p class="modal-subtitle">Enviámos um código de 6 dígitos para <strong>{{ phoneCountryCode }} {{ phoneNumber }}</strong></p>
+    
+    <div class="code-input-group">
+      <input 
+        type="text" 
+        [(ngModel)]="phoneCode" 
+        maxlength="6" 
+        placeholder="000000"
+        class="code-input"
+        (keyup.enter)="verifyPhoneCode()">
+    </div>
+
+    <div class="countdown-display" *ngIf="!canResend">
+      Código expira em: <strong>{{ countdownDisplay }}</strong>
+    </div>
+    <div class="countdown-display expired" *ngIf="canResend">
+      O código expirou.
+    </div>
+
+    <div class="modal-alert error" *ngIf="phoneModalError">{{ phoneModalError }}</div>
+    <div class="modal-alert success" *ngIf="phoneModalSuccess">{{ phoneModalSuccess }}</div>
+
+    <div class="modal-actions">
+      <button 
+        class="modal-btn verify" 
+        (click)="verifyPhoneCode()" 
+        [disabled]="phoneModalLoading || phoneCode.length !== 6">
+        @if(phoneModalLoading) {
+          <span class="spinner small"></span>
+        } @else {
+          Verificar
+        }
+      </button>
+      <button 
+        class="modal-btn resend" 
+        (click)="resendPhoneCode()" 
+        [disabled]="!canResend || phoneModalLoading">
+        Reenviar Código
+      </button>
+      <button class="modal-btn close" (click)="closePhoneModal()">
+        Fechar
+      </button>
+    </div>
+  </div>
+</div>

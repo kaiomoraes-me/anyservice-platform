@@ -44,23 +44,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         
         jwt = authHeader.substring(7); // Remove a palavra "Bearer "
-        userEmail = jwtService.extractUsername(jwt);
-        
-        // Se temos o email no token e o usuário ainda não está autenticado no contexto
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+        try {
+            userEmail = jwtService.extractUsername(jwt);
             
-            // Verifica se o token é válido para este usuário
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                // Cria o objeto de autenticação e coloca no contexto do Spring
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+            // Se temos o email no token e o usuário ainda não está autenticado no contexto
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+                
+                // Verifica se o token é válido para este usuário
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    // Cria o objeto de autenticação e coloca no contexto do Spring
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+        } catch (Exception e) {
+            // Se o token for inválido, malformado ou expirado, não fazemos nada.
+            // O contexto ficará sem autenticação e o Spring retornará 401 ou 403 automaticamente.
+            System.out.println("Token inválido ou expirado: " + e.getMessage());
         }
         
         // Passa para o próximo filtro

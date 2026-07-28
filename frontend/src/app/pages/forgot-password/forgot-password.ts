@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../core/auth/auth';
@@ -14,6 +14,7 @@ export class ForgotPassword {
   private fb = inject(FormBuilder);
   private auth = inject(Auth);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   forgotForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]]
@@ -29,6 +30,7 @@ export class ForgotPassword {
       this.auth.forgotPassword(email).subscribe({
         next: (res: any) => {
           this.isLoading = false;
+          this.cdr.markForCheck();
           Swal.fire({
             title: 'Código Enviado!',
             text: 'Verifique seu e-mail para redefinir a senha.',
@@ -42,6 +44,7 @@ export class ForgotPassword {
         },
         error: (err) => {
           this.isLoading = false;
+          this.cdr.markForCheck();
           Swal.fire({
             title: 'Ops!',
             text: err.status === 400 || err.status === 500 

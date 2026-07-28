@@ -34,6 +34,7 @@ public class SecurityConfiguration {
             .csrf(csrf -> csrf.disable()) // Desabilita proteção CSRF (não necessária para APIs com JWT)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll() // Libera acesso público às rotas de login/registro
+                .requestMatchers("/uploads/**").permitAll() // Libera as fotos de perfil
                 .requestMatchers("/error").permitAll() // Libera o endpoint de erros padrão do Spring Boot
                 .anyRequest().authenticated() // Bloqueia qualquer outra rota (exige token)
             )
