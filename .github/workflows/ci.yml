@@ -55,3 +55,22 @@ jobs:
 
     - name: Build Angular Project
       run: npm run build
+
+  deploy:
+    name: Deploy to AWS
+    needs: [backend-build, frontend-build]
+    # Só faz deploy se a alteração for direto na branch 'main' (impede deploy acidental em Pull Requests)
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Executar comandos no servidor da AWS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USERNAME }}
+          key: ${{ secrets.AWS_KEY }}
+          script: |
+            cd anyservice-platform
+            git pull origin main
+            sudo docker compose up --build -d
+            sudo docker system prune -f
