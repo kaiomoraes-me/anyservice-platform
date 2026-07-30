@@ -1,17 +1,23 @@
 package com.anyservice.backend.service;
 
-import com.anyservice.backend.controller.dto.AuthenticationRequest;
-import com.anyservice.backend.controller.dto.AuthenticationResponse;
-import com.anyservice.backend.controller.dto.RegisterRequest;
+import com.anyservice.backend.controller.dto.*;
 import com.anyservice.backend.model.Role;
 import com.anyservice.backend.model.User;
 import com.anyservice.backend.repository.UserRepository;
 import com.anyservice.backend.security.JwtService;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
+/** Handles user registration, login, email verification, and password reset flows. */
 @Service
 public class AuthenticationService {
 
@@ -21,7 +27,9 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
 
-    public AuthenticationService(UserRepository repository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager, EmailService emailService) {
+    public AuthenticationService(UserRepository repository, PasswordEncoder passwordEncoder,
+                                  JwtService jwtService, AuthenticationManager authenticationManager,
+                                  EmailService emailService) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
@@ -29,32 +37,25 @@ public class AuthenticationService {
         this.emailService = emailService;
     }
 
+    /** Generates a random 6-digit verification code. */
     private String generateRandomCode() {
-        return String.format("%06d", new java.util.Random().nextInt(999999));
+        return String.format("%06d", new Random().nextInt(999999));
     }
 
-    public com.anyservice.backend.controller.dto.MessageResponse register(RegisterRequest request) {
-        // Verifica se o email já existe
+    /** Registers a new user, sends email verification code, and returns a confirmation message. */
+    public MessageResponse register(RegisterRequest request) {
         if (repository.findByEmail(request.getEmail()).isPresent()) {
-            throw new org.springframework.web.server.ResponseStatusException(
-                org.springframework.http.HttpStatus.BAD_REQUEST, 
-                "Email já cadastrado"
-            );
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email já cadastrado");
         }
 
         String username = request.getUsername();
         if (username == null || !username.matches("^[a-z0-9_]+$")) {
-            throw new org.springframework.web.server.ResponseStatusException(
-                org.springframework.http.HttpStatus.BAD_REQUEST, 
-                "O nome de usuário (@) deve conter apenas letras minúsculas, números e underline (_)."
-            );
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "O nome de usuário (@) deve conter apenas letras minúsculas, números e underline (_).");
         }
 
         if (repository.existsByUsernameIdentifier(username)) {
-            throw new org.springframework.web.server.ResponseStatusException(
-                org.springframework.http.HttpStatus.BAD_REQUEST, 
-                "Este nome de usuário (@) já está em uso."
-            );
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Este nome de usuário (@) já está em uso.");
         }
 
         User user = new User();
@@ -63,56 +64,53 @@ public class AuthenticationService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.valueOf(request.getRole().toUpperCase()));
-        user.setEnabled(false); // Inativo até verificar e-mail
+        user.setEnabled(false);
 
         String code = generateRandomCode();
         user.setVerificationCode(code);
-        user.setVerificationCodeExpiresAt(java.time.LocalDateTime.now().plusMinutes(15));
-        
-        repository.save(user);
+        user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
 
-        // Dispara o e-mail
+        repository.save(user);
         emailService.sendVerificationCode(user.getEmail(), code);
 
-        return new com.anyservice.backend.controller.dto.MessageResponse("Conta criada com sucesso. Verifique seu e-mail para ativar.");
+        return new MessageResponse("Conta criada com sucesso. Verifique seu e-mail para ativar.");
     }
 
+    /** Authenticates the user by email/password and returns a JWT token with role claims. */
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         User user = repository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Credenciais inválidas"));
-        
+
         if (!user.isEnabled()) {
             throw new RuntimeException("Conta não ativada. Verifique seu e-mail.");
         }
 
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
-        
-        java.util.Map<String, Object> extraClaims = new java.util.HashMap<>();
+
+        Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("id", user.getId());
         extraClaims.put("role", user.getRole().name());
-        
+
         String jwtToken = jwtService.generateToken(extraClaims, user);
         return new AuthenticationResponse(jwtToken);
     }
 
-    public com.anyservice.backend.controller.dto.MessageResponse verifyAccount(com.anyservice.backend.controller.dto.VerifyAccountRequest request) {
+    /** Activates a user account by validating the email verification code. */
+    public MessageResponse verifyAccount(VerifyAccountRequest request) {
         User user = repository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         if (user.isEnabled()) {
-            return new com.anyservice.backend.controller.dto.MessageResponse("Conta já está ativada.");
+            return new MessageResponse("Conta já está ativada.");
         }
 
         if (user.getVerificationCode() == null || !user.getVerificationCode().equals(request.getCode())) {
             throw new RuntimeException("Código inválido");
         }
 
-        if (user.getVerificationCodeExpiresAt().isBefore(java.time.LocalDateTime.now())) {
+        if (user.getVerificationCodeExpiresAt().isBefore(LocalDateTime.now())) {
             throw new RuntimeException("Código expirado");
         }
 
@@ -121,24 +119,26 @@ public class AuthenticationService {
         user.setVerificationCodeExpiresAt(null);
         repository.save(user);
 
-        return new com.anyservice.backend.controller.dto.MessageResponse("Conta ativada com sucesso!");
+        return new MessageResponse("Conta ativada com sucesso!");
     }
 
-    public com.anyservice.backend.controller.dto.MessageResponse forgotPassword(com.anyservice.backend.controller.dto.ForgotPasswordRequest request) {
+    /** Sends a password reset code to the user's email. */
+    public MessageResponse forgotPassword(ForgotPasswordRequest request) {
         User user = repository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         String code = generateRandomCode();
         user.setResetPasswordCode(code);
-        user.setResetPasswordCodeExpiresAt(java.time.LocalDateTime.now().plusMinutes(15));
+        user.setResetPasswordCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
         repository.save(user);
 
         emailService.sendPasswordResetCode(user.getEmail(), code);
 
-        return new com.anyservice.backend.controller.dto.MessageResponse("Código de recuperação enviado para o e-mail.");
+        return new MessageResponse("Código de recuperação enviado para o e-mail.");
     }
 
-    public com.anyservice.backend.controller.dto.MessageResponse resetPassword(com.anyservice.backend.controller.dto.ResetPasswordRequest request) {
+    /** Validates the reset code and updates the user's password. */
+    public MessageResponse resetPassword(ResetPasswordRequest request) {
         User user = repository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
@@ -146,7 +146,7 @@ public class AuthenticationService {
             throw new RuntimeException("Código inválido");
         }
 
-        if (user.getResetPasswordCodeExpiresAt().isBefore(java.time.LocalDateTime.now())) {
+        if (user.getResetPasswordCodeExpiresAt().isBefore(LocalDateTime.now())) {
             throw new RuntimeException("Código expirado");
         }
 
@@ -155,6 +155,6 @@ public class AuthenticationService {
         user.setResetPasswordCodeExpiresAt(null);
         repository.save(user);
 
-        return new com.anyservice.backend.controller.dto.MessageResponse("Senha redefinida com sucesso!");
+        return new MessageResponse("Senha redefinida com sucesso!");
     }
 }

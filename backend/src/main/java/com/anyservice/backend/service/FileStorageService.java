@@ -9,10 +9,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+/** Stores uploaded files (avatars) on the local filesystem. */
 @Service
 public class FileStorageService {
 
-    // Em produção, isso seria um Bucket AWS S3. Para testes, salvamos numa pasta local.
     private final String uploadDir = "uploads/avatars";
 
     public FileStorageService() {
@@ -23,25 +23,24 @@ public class FileStorageService {
         }
     }
 
+    /** Saves an avatar image with a unique UUID filename and returns the relative URL path. */
     public String saveAvatar(MultipartFile file) {
         try {
             if (file.isEmpty()) {
                 throw new RuntimeException("Falha ao guardar um arquivo vazio.");
             }
-            
-            // Gerar um nome único para o arquivo para evitar conflitos
+
             String originalFileName = file.getOriginalFilename();
-            String fileExtension = originalFileName != null ? originalFileName.substring(originalFileName.lastIndexOf(".")) : ".jpg";
+            String fileExtension = originalFileName != null
+                    ? originalFileName.substring(originalFileName.lastIndexOf("."))
+                    : ".jpg";
             String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
-            
-            Path destinationFile = Paths.get(uploadDir).resolve(Paths.get(uniqueFileName)).normalize().toAbsolutePath();
-            
-            // Salvar no disco
+
+            Path destinationFile = Paths.get(uploadDir).resolve(uniqueFileName).normalize().toAbsolutePath();
             file.transferTo(destinationFile);
-            
-            // Retornar a URL relativa que o front vai acessar
+
             return "/uploads/avatars/" + uniqueFileName;
-            
+
         } catch (IOException e) {
             throw new RuntimeException("Falha ao salvar o arquivo", e);
         }

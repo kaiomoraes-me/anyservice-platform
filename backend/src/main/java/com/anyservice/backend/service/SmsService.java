@@ -9,6 +9,7 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+/** Manages sending SMS messages (e.g., phone verification) using the Vonage API. */
 @Service
 public class SmsService {
 
@@ -23,6 +24,7 @@ public class SmsService {
 
     private VonageClient vonageClient;
 
+    /** Initializes the Vonage client if API keys are provided. */
     @PostConstruct
     public void init() {
         if (!apiKey.isEmpty() && !apiSecret.isEmpty()) {
@@ -37,15 +39,13 @@ public class SmsService {
     }
 
     /**
-     * Envia um código de verificação por SMS via Vonage (Nexmo).
-     * Se o Vonage não estiver configurado, faz log no console.
+     * Sends a verification code via SMS to the provided phone number.
+     * If Vonage is not configured, logs the message to the console for development.
      */
     public void sendVerificationCode(String phoneNumber, String code) {
-        // Remover espaços do número para formato internacional (ex: "+351 932..." → "+351932...")
         String cleanNumber = phoneNumber.replaceAll("\\s+", "");
 
         if (vonageClient == null) {
-            // Fallback: log no console (modo desenvolvimento sem Vonage)
             System.out.println("=========================================");
             System.out.println("  SMS SIMULADO (Vonage não configurado)");
             System.out.println("  Para: " + cleanNumber);
@@ -55,12 +55,11 @@ public class SmsService {
         }
 
         try {
-            // Enviar SMS real via Vonage
             TextMessage message = new TextMessage(
-                    fromName,        // De (nome do remetente — aparece no telemóvel)
-                    cleanNumber,     // Para (número internacional)
+                    fromName,
+                    cleanNumber,
                     "AnyService - Seu código de verificação é: " + code + ". Válido por 2 minutos."
-            );
+                );
 
             SmsSubmissionResponse response = vonageClient.getSmsClient().submitMessage(message);
 
@@ -73,7 +72,7 @@ public class SmsService {
                 }
             }
         } catch (RuntimeException e) {
-            throw e; // Re-throw RuntimeExceptions (our own errors)
+            throw e; 
         } catch (Exception e) {
             System.err.println("❌ Erro ao enviar SMS pelo Vonage: " + e.getMessage());
             throw new RuntimeException("Número de telefone inválido ou formato incorreto para o país selecionado.");

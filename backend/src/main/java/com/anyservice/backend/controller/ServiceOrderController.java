@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Exposes endpoints to retrieve service orders associated with the authenticated user. */
 @RestController
 @RequestMapping("/api/orders")
 public class ServiceOrderController {
@@ -23,6 +24,7 @@ public class ServiceOrderController {
         this.orderRepository = orderRepository;
     }
 
+    /** Returns all service orders where the user acts either as a client or a provider. */
     @GetMapping("/me")
     public ResponseEntity<List<ServiceOrderDto>> getMyOrders(@AuthenticationPrincipal User currentUser) {
         List<ServiceOrderDto> dtos = new ArrayList<>();
@@ -39,12 +41,13 @@ public class ServiceOrderController {
             dtos.add(mapToDto(order, "PROVIDER"));
         }
 
-        // Ordenar misturado (Opcional, mas para já devolvemos ambos na mesma lista)
+        // Ordenar misturado (ambos na mesma lista ordenados por data)
         dtos.sort((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
 
         return ResponseEntity.ok(dtos);
     }
 
+    /** Converts a ServiceOrder entity to its DTO representation. */
     private ServiceOrderDto mapToDto(ServiceOrder order, String myRole) {
         ServiceOrderDto dto = new ServiceOrderDto();
         dto.setId(order.getId());

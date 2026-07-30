@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/** Receives and processes Stripe webhook events (e.g., checkout.session.completed). */
 @RestController
 @RequestMapping("/api/webhooks")
 public class StripeWebhookController {
@@ -25,50 +26,42 @@ public class StripeWebhookController {
         this.paymentService = paymentService;
     }
 
+    /** Validates the Stripe signature and processes payment completion events. */
     @PostMapping("/stripe")
     public ResponseEntity<String> handleStripeEvent(
             @RequestBody String payload,
             @RequestHeader("Stripe-Signature") String sigHeader) {
 
-        Event event = null;
-
-        System.out.println("🔔 Recebido Webhook do Stripe!");
-        System.out.println("SigHeader: " + sigHeader);
-        
+        Event event;
         String secret = endpointSecret != null ? endpointSecret.trim() : "";
-        System.out.println("Secret configurado (tamanho): " + secret.length());
 
         try {
             event = Webhook.constructEvent(payload, sigHeader, secret);
         } catch (SignatureVerificationException e) {
-            System.out.println("⚠️ Assinatura do Webhook falhou.");
-            System.out.println("Erro: " + e.getMessage());
+            System.out.println("⚠️ Webhook signature verification failed: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("");
         } catch (Exception e) {
-            System.out.println("⚠️ Outro erro no Webhook: " + e.getMessage());
+            System.out.println("⚠️ Webhook processing error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("");
         }
 
-        // Lidar com o evento de pagamento concluído
         if ("checkout.session.completed".equals(event.getType())) {
-            EventDataObjectDeserializer dataObjectDeserializer = event.getDataObjectDeserializer();
-            
+            EventDataObjectDeserializer deserializer = event.getDataObjectDeserializer();
+
             StripeObject stripeObject = null;
-            if (dataObjectDeserializer.getObject().isPresent()) {
-                stripeObject = dataObjectDeserializer.getObject().get();
+            if (deserializer.getObject().isPresent()) {
+                stripeObject = deserializer.getObject().get();
             } else {
                 try {
-                    stripeObject = dataObjectDeserializer.deserializeUnsafe();
+                    stripeObject = deserializer.deserializeUnsafe();
                 } catch (com.stripe.exception.EventDataObjectDeserializationException e) {
-                    System.out.println("⚠️ Erro ao forçar leitura do Stripe: " + e.getMessage());
+                    System.out.println("⚠️ Failed to deserialize Stripe event: " + e.getMessage());
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("");
                 }
             }
 
-            if (stripeObject instanceof Session) {
-                Session session = (Session) stripeObject;
-                System.out.println("✅ Pagamento concluído para a Sessão: " + session.getId());
-                // Marca o Pedido como PAGO e libera o Chat
+            if (stripeObject instanceof Session session) {
+                System.out.println("✅ Payment completed for session: " + session.getId());
                 paymentService.markOrderAsPaid(session.getId());
             }
         }

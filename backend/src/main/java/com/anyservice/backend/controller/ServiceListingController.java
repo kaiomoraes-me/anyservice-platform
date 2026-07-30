@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/** Exposes REST endpoints for browsing, creating, and managing service listings. */
 @RestController
 @RequestMapping("/api/services")
 public class ServiceListingController {
@@ -22,7 +23,7 @@ public class ServiceListingController {
         this.serviceListingService = serviceListingService;
     }
 
-    // 1. Pública: Ver todos os serviços (Montra principal)
+    /** Returns all listings, optionally filtered by category (public endpoint). */
     @GetMapping
     public ResponseEntity<List<ServiceListingDto>> getAllListings(@RequestParam(required = false) String category) {
         if (category != null && !category.isEmpty()) {
@@ -31,19 +32,19 @@ public class ServiceListingController {
         return ResponseEntity.ok(serviceListingService.getAllListings());
     }
 
-    // 1.1 Pública: Ver detalhes de um serviço específico
+    /** Returns a single listing by ID (public endpoint). */
     @GetMapping("/{id}")
     public ResponseEntity<ServiceListingDto> getListingById(@PathVariable Long id) {
         return ResponseEntity.ok(serviceListingService.getListingById(id));
     }
 
-    // 2. Privada: Ver os meus serviços (Painel do Prestador)
+    /** Returns all listings created by the authenticated provider. */
     @GetMapping("/me")
     public ResponseEntity<List<ServiceListingDto>> getMyListings(@AuthenticationPrincipal User currentUser) {
         return ResponseEntity.ok(serviceListingService.getMyListings(currentUser));
     }
 
-    // 3. Privada: Criar um novo serviço
+    /** Creates a new service listing for the authenticated provider. */
     @PostMapping
     public ResponseEntity<ServiceListingDto> createListing(
             @AuthenticationPrincipal User currentUser,
@@ -51,7 +52,7 @@ public class ServiceListingController {
         return ResponseEntity.ok(serviceListingService.createListing(currentUser, request));
     }
 
-    // 4. Privada: Apagar um serviço
+    /** Deletes a service listing owned by the authenticated provider. */
     @DeleteMapping("/{id}")
     public ResponseEntity<MessageResponse> deleteListing(
             @AuthenticationPrincipal User currentUser,

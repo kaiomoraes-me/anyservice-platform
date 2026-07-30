@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+/** Exposes payment endpoints for initiating Stripe Checkout sessions. */
 @RestController
 @RequestMapping("/api/payments")
 public class PaymentController {
@@ -18,11 +19,12 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
+    /** Initiates a Stripe Checkout session for the given service and returns the redirect URL. */
     @PostMapping("/checkout/{serviceId}")
     public ResponseEntity<CheckoutResponse> checkout(
             @AuthenticationPrincipal User currentUser,
             @PathVariable Long serviceId) {
-        
+
         try {
             String checkoutUrl = paymentService.createCheckoutSession(currentUser, serviceId);
             return ResponseEntity.ok(new CheckoutResponse(checkoutUrl));

@@ -7,6 +7,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/** Maps the /uploads/** URL path to the local filesystem for serving avatar images. */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+/** Handles user profile operations and phone number management. */
 @Service
 public class UserService {
 
@@ -19,14 +20,15 @@ public class UserService {
         this.smsService = smsService;
     }
 
+    /** Retrieves the user profile by ID and returns its DTO representation. */
     public UserProfileDto getProfile(User currentUser) {
-        // Garantir que temos os dados mais atualizados do banco
         User user = userRepository.findById(currentUser.getId())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         return mapToDto(user);
     }
 
+    /** Updates the user profile details (name, bio, username) ensuring business rules. */
     public UserProfileDto updateProfile(User currentUser, UserUpdateDto updateDto) {
         User user = userRepository.findById(currentUser.getId())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -34,18 +36,14 @@ public class UserService {
         if (updateDto.getName() != null) user.setName(updateDto.getName());
         if (updateDto.getBio() != null) user.setBio(updateDto.getBio());
         if (updateDto.getPhoneVisible() != null) user.setPhoneVisible(updateDto.getPhoneVisible());
-        // NOTA: O telefone NÃO é alterado aqui. Só pode ser alterado via verificação SMS.
         
-        // Lógica do Username
         if (updateDto.getUsername() != null && !updateDto.getUsername().equals(user.getUsernameIdentifier())) {
-            // Verificar regra dos 14 dias
             if (user.getUsernameLastChangedAt() != null) {
                 long daysSinceLastChange = java.time.temporal.ChronoUnit.DAYS.between(user.getUsernameLastChangedAt(), LocalDateTime.now());
                 if (daysSinceLastChange < 14) {
                     throw new RuntimeException("Você só pode alterar seu username a cada 14 dias.");
                 }
             }
-            // Verificar unicidade
             if (userRepository.existsByUsernameIdentifier(updateDto.getUsername())) {
                 throw new RuntimeException("Este username já está em uso.");
             }
@@ -54,39 +52,29 @@ public class UserService {
         }
 
         userRepository.save(user);
-
         return mapToDto(user);
     }
 
-    /**
-     * Envia código de verificação por SMS para o número informado.
-     * Valida unicidade do número antes de enviar.
-     */
+    /** Validates phone uniqueness and sends a 6-digit SMS code for verification. */
     public void sendPhoneVerificationCode(User currentUser, String fullPhone) {
         User user = userRepository.findById(currentUser.getId())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        // Verificar se o número já está em uso por OUTRA conta
         if (userRepository.existsByPhoneAndIdNot(fullPhone, user.getId())) {
             throw new RuntimeException("Este número de telefone já está associado a outra conta.");
         }
 
-        // Gerar código de 6 dígitos
         String code = String.format("%06d", new java.util.Random().nextInt(999999));
 
-        // Armazenar os dados temporários
         user.setPendingPhone(fullPhone);
         user.setPhoneVerificationCode(code);
         user.setPhoneVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(2));
         userRepository.save(user);
 
-        // "Enviar" SMS (simulado — log no console)
         smsService.sendVerificationCode(fullPhone, code);
     }
 
-    /**
-     * Verifica o código SMS e, se correto, associa o número à conta.
-     */
+    /** Validates the SMS code and permanently links the phone to the user's account. */
     public void verifyPhoneCode(User currentUser, String code) {
         User user = userRepository.findById(currentUser.getId())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -103,11 +91,8 @@ public class UserService {
             throw new RuntimeException("Código inválido.");
         }
 
-        // Código correto! Associar o número à conta.
         user.setPhone(user.getPendingPhone());
         user.setPhoneVerified(true);
-
-        // Limpar campos temporários
         user.setPendingPhone(null);
         user.setPhoneVerificationCode(null);
         user.setPhoneVerificationCodeExpiresAt(null);
@@ -115,6 +100,7 @@ public class UserService {
         userRepository.save(user);
     }
 
+    /** Converts a User entity to its UserProfileDto representation. */
     private UserProfileDto mapToDto(User user) {
         UserProfileDto dto = new UserProfileDto();
         dto.setId(user.getId());

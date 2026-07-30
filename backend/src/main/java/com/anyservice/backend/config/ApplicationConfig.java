@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+/** Configures Spring Security beans: user lookup, password encoding, and authentication provider. */
 @Configuration
 public class ApplicationConfig {
 
@@ -21,14 +22,14 @@ public class ApplicationConfig {
         this.repository = repository;
     }
 
-    // Ensina o Spring como buscar o usuário no banco (por email)
+    /** Teaches Spring how to load a user from the database by email. */
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> repository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
     }
 
-    // Configura o provedor de autenticação com nosso buscador de usuário e nosso encriptador de senhas
+    /** Wires the user lookup service with BCrypt password encoding. */
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService());
@@ -36,13 +37,13 @@ public class ApplicationConfig {
         return authProvider;
     }
 
-    // Gerenciador central de autenticação do Spring
+    /** Central authentication manager provided by Spring Security. */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    // Define que usaremos o BCrypt para criptografar as senhas no banco
+    /** Defines BCrypt as the password hashing algorithm. */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

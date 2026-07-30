@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/** Manages chat messages between client and provider for a paid service order. */
 @RestController
 @RequestMapping("/api/chat")
 public class ChatController {
@@ -27,13 +28,14 @@ public class ChatController {
         this.orderRepository = orderRepository;
     }
 
+    /** Returns the full message history for a given order (requires PAID status). */
     @GetMapping("/{orderId}")
     public ResponseEntity<List<ChatMessageDto>> getMessages(
             @PathVariable Long orderId,
             @AuthenticationPrincipal User currentUser) {
-        
-        ServiceOrder order = validateChatAccess(orderId, currentUser);
-        
+
+        validateChatAccess(orderId, currentUser);
+
         List<ChatMessageDto> messages = chatRepository.findByOrderIdOrderByTimestampAsc(orderId)
                 .stream()
                 .map(this::mapToDto)
@@ -42,6 +44,7 @@ public class ChatController {
         return ResponseEntity.ok(messages);
     }
 
+    /** Sends a new message in the chat for a given order (requires PAID status). */
     @PostMapping("/{orderId}")
     public ResponseEntity<ChatMessageDto> sendMessage(
             @PathVariable Long orderId,
@@ -59,6 +62,7 @@ public class ChatController {
         return ResponseEntity.ok(mapToDto(msg));
     }
 
+    /** Validates that the user belongs to this order and that the order is paid. */
     private ServiceOrder validateChatAccess(Long orderId, User user) {
         ServiceOrder order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
@@ -74,6 +78,7 @@ public class ChatController {
         return order;
     }
 
+    /** Converts a ChatMessage entity to its DTO representation. */
     private ChatMessageDto mapToDto(ChatMessage msg) {
         ChatMessageDto dto = new ChatMessageDto();
         dto.setId(msg.getId());
