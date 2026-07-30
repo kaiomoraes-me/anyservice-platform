@@ -1,0 +1,32 @@
+<div class="page-container fade-in">
+  
+  <header class="page-header">
+    <a routerLink="/my-orders" class="back-link">← Voltar</a>
+    <h1 class="page-title">Chat Seguro</h1>
+  </header>
+
+  <div class="messages-area glass-panel">
+    <div *ngFor="let msg of messages" 
+         class="message-wrapper" 
+         [ngClass]="{'mine': msg.senderId === myUserId, 'theirs': msg.senderId !== myUserId}">
+      
+      <div class="message-bubble">
+        <div class="sender-name">{{ msg.senderName }}</div>
+        <div class="content">{{ msg.content }}</div>
+        <div class="timestamp">{{ msg.timestamp | date:'shortTime' }}</div>
+      </div>
+
+    </div>
+    <div *ngIf="messages.length === 0" class="empty-chat">
+      Inicie a conversa...
+    </div>
+  </div>
+
+  <div class="chat-input-area">
+    <form (ngSubmit)="sendMessage()">
+      <input type="text" class="minimal-input" [(ngModel)]="newMessage" name="newMessage" placeholder="Escreva a sua mensagem..." autocomplete="off">
+      <button type="submit" class="btn-premium" [disabled]="!newMessage.trim()">Enviar</button>
+    </form>
+  </div>
+
+</div>

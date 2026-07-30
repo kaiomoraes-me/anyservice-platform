@@ -40,13 +40,13 @@ export class Dashboard implements OnInit {
   loadListings() {
     this.isLoading = true;
     this.serviceListing.getAllListings(this.selectedCategory).subscribe({
-      next: (data) => {
+      next: (data: any) => {
         this.allListings = data;
         this.isLoading = false;
         this.cdr.markForCheck();
       },
-      error: (err) => {
-        console.error('Erro ao carregar anúncios:', err);
+      error: (err: any) => {
+        console.error('Error fetching listings', err);
         this.isLoading = false;
         this.cdr.markForCheck();
       }

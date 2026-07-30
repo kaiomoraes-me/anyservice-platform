@@ -1,0 +1,64 @@
+<div class="page-container fade-in">
+  
+  <header class="page-header" style="margin-bottom:var(--space-md);">
+    <a routerLink="/dashboard" style="color:var(--color-text-secondary); font-weight:500; font-size:var(--text-sm);">← Voltar à Montra</a>
+  </header>
+
+  <div *ngIf="isLoading" class="state-container">
+    <div class="spinner"></div>
+    <p>A carregar serviço...</p>
+  </div>
+
+  <div *ngIf="errorMessage" class="state-container">
+    <h2>Oops! 😕</h2>
+    <p>{{ errorMessage }}</p>
+    <a routerLink="/dashboard" class="btn-premium" style="margin-top:var(--space-md);">Explorar outros serviços</a>
+  </div>
+
+  <div *ngIf="!isLoading && service" class="service-layout">
+    
+    <!-- Lado Esquerdo: Detalhes -->
+    <div class="service-main">
+      <span class="category-badge">{{ service.category }}</span>
+      <h1 class="service-title">{{ service.title }}</h1>
+      
+      <div class="provider-header glass-panel">
+        <div class="provider-avatar">
+          <img *ngIf="service.provider.profilePictureUrl" [src]="service.provider.profilePictureUrl" alt="Foto">
+          <div *ngIf="!service.provider.profilePictureUrl" class="avatar-placeholder">{{ service.provider.name.charAt(0) }}</div>
+        </div>
+        <div>
+          <h3 style="margin: 0; font-size:var(--text-lg); color:var(--color-text-primary);">{{ service.provider.name }}</h3>
+          <span style="color:var(--color-text-tertiary); font-size:var(--text-xs); text-transform:uppercase; letter-spacing:0.05em; font-weight:600;">Prestador Verificado</span>
+        </div>
+      </div>
+
+      <div class="description-box">
+        <h3 style="color:var(--color-text-primary); margin-bottom:var(--space-sm); font-size:var(--text-lg);">Sobre este Serviço</h3>
+        <p style="color:var(--color-text-secondary); line-height:1.7;">{{ service.description }}</p>
+      </div>
+    </div>
+
+    <!-- Lado Direito: Preço e Ação -->
+    <div class="service-sidebar">
+      <div class="glass-panel pricing-card">
+        <div class="price">
+          <span class="currency">€</span>{{ service.price }}
+        </div>
+        <p class="price-subtitle">Pagamento Seguro AnyService</p>
+        
+        <ul class="benefits-list">
+          <li>✓ Dinheiro protegido até conclusão</li>
+          <li>✓ Chat direto com o prestador</li>
+          <li>✓ Suporte 24/7</li>
+        </ul>
+
+        <button class="btn-premium" style="width:100%; justify-content:center; padding:var(--space-md);" (click)="hireService()" [disabled]="isHiring">
+          <span *ngIf="isHiring"><span class="spinner" style="border-width:2px; display:inline-block;"></span> A redirecionar...</span>
+          <span *ngIf="!isHiring">Contratar Agora</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

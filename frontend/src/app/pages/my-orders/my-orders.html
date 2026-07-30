@@ -1,0 +1,47 @@
+<div class="page-container fade-in">
+  
+  <header class="page-header">
+    <h1 class="page-title">Os Meus Pedidos</h1>
+  </header>
+
+  <div *ngIf="isLoading" class="state-container">
+    <div class="spinner"></div>
+    <p>A carregar...</p>
+  </div>
+
+  <div *ngIf="!isLoading && orders.length === 0" class="state-container">
+    <h2>Ainda não tens pedidos.</h2>
+    <p>Os serviços que contratares ou que te contratarem vão aparecer aqui.</p>
+  </div>
+
+  <div *ngIf="!isLoading && orders.length > 0" class="grid-fluid">
+    <article class="glass-panel order-card" *ngFor="let order of orders" tabindex="0">
+      
+      <header class="order-header">
+        <span class="status-badge" [ngClass]="order.status ? order.status.toLowerCase() : ''">
+          {{ order.status === 'PAID' ? 'PAGO' : order.status }}
+        </span>
+        <span class="role-badge">{{ order.myRole === 'CLIENT' ? 'Contrataste' : 'Foste Contratado' }}</span>
+      </header>
+
+      <h3 class="order-title">{{ order.serviceTitle }}</h3>
+      
+      <div class="order-details">
+        <p><span>Cliente:</span> {{ order.clientName }}</p>
+        <p><span>Prestador:</span> {{ order.providerName }}</p>
+        <p *ngIf="order.myRole === 'CLIENT'"><span>Total Pago:</span> €{{ order.totalPrice }}</p>
+        <p *ngIf="order.myRole === 'PROVIDER'"><span>Vais Receber:</span> €{{ order.providerEarnings }}</p>
+      </div>
+
+      <footer class="order-actions">
+        <!-- O Chat só deve abrir se estiver PAGO -->
+        <a *ngIf="order.status === 'PAID'" [routerLink]="['/chat', order.id]" class="btn-premium">
+          Abrir Chat
+        </a>
+        <p *ngIf="order.status !== 'PAID'" class="locked-msg">
+          O chat será desbloqueado assim que o pagamento for concluído.
+        </p>
+      </footer>
+    </article>
+  </div>
+</div>

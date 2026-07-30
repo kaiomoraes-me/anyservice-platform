@@ -1,0 +1,89 @@
+<div class="page-container fade-in">
+  
+  <header class="page-header header-actions">
+    <h1 class="page-title">Os Meus Anúncios</h1>
+    <button class="btn-premium" (click)="openCreateModal()">
+      + Novo Serviço
+    </button>
+  </header>
+
+  <div *ngIf="isLoading" class="state-container">
+    <div class="spinner"></div>
+    <p>A carregar anúncios...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && myListings.length === 0" class="state-container">
+    <h2>Ainda não tens nenhum anúncio</h2>
+    <p>Cria o teu primeiro serviço e começa a receber pedidos de clientes!</p>
+    <button class="btn-premium" style="margin-top: var(--space-md)" (click)="openCreateModal()">Criar Anúncio</button>
+  </div>
+
+  <!-- Grid de Serviços -->
+  <div *ngIf="!isLoading && myListings.length > 0" class="grid-fluid">
+    
+    <article *ngFor="let service of myListings" class="glass-panel service-card">
+      <div class="service-category">{{ service.category }}</div>
+      <h3 class="service-title">{{ service.title }}</h3>
+      <p class="service-desc">{{ (service.description.length > 100) ? (service.description | slice:0:100) + '...' : service.description }}</p>
+      
+      <footer class="service-footer">
+        <div class="service-price">€{{ service.price }}</div>
+        <button class="btn-premium btn-danger-outline" (click)="deleteListing(service.id)">Apagar</button>
+      </footer>
+    </article>
+
+  </div>
+
+  <!-- Create Modal -->
+  <div class="modal-overlay" *ngIf="showCreateModal">
+    <div class="modal-content glass-panel">
+      <h2 style="color: var(--color-text-primary); margin-bottom: var(--space-xl);">Criar Novo Serviço</h2>
+      
+      <div *ngIf="errorMessage" class="error-banner">{{ errorMessage }}</div>
+      <div *ngIf="successMessage" class="success-banner">{{ successMessage }}</div>
+
+      <form [formGroup]="serviceForm" (ngSubmit)="onSubmit()" class="login-form">
+        
+        <div class="input-group">
+          <label>Título do Anúncio</label>
+          <input type="text" class="minimal-input" formControlName="title" placeholder="Ex: Criação de Website Moderno">
+          <div *ngIf="serviceForm.get('title')?.touched && serviceForm.get('title')?.errors?.['required']" class="field-error-text">O título é obrigatório.</div>
+          <div *ngIf="serviceForm.get('title')?.touched && serviceForm.get('title')?.errors?.['maxlength']" class="field-error-text">Máximo de 100 caracteres.</div>
+        </div>
+
+        <div class="input-group">
+          <label>Categoria</label>
+          <select class="minimal-input" formControlName="category">
+            <option value="">Seleciona uma categoria...</option>
+            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          </select>
+          <div *ngIf="serviceForm.get('category')?.touched && serviceForm.get('category')?.errors?.['required']" class="field-error-text">A categoria é obrigatória.</div>
+        </div>
+
+        <div class="input-group">
+          <label>Descrição do Trabalho</label>
+          <textarea class="minimal-input" formControlName="description" rows="4" placeholder="Descreve detalhadamente o que inclui o teu serviço..."></textarea>
+          <div *ngIf="serviceForm.get('description')?.touched && serviceForm.get('description')?.errors?.['required']" class="field-error-text">A descrição é obrigatória.</div>
+        </div>
+
+        <div class="input-group">
+          <label>Preço (€)</label>
+          <input type="number" class="minimal-input" formControlName="price" placeholder="Ex: 50.00" min="1" step="0.01">
+          <div *ngIf="serviceForm.get('price')?.touched && serviceForm.get('price')?.errors?.['required']" class="field-error-text">O preço é obrigatório.</div>
+          <div *ngIf="serviceForm.get('price')?.touched && serviceForm.get('price')?.errors?.['min']" class="field-error-text">O preço deve ser superior a zero.</div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-premium btn-danger-outline" (click)="closeCreateModal()" [disabled]="isSubmitting">Cancelar</button>
+          <button type="submit" class="btn-premium" [disabled]="isSubmitting || serviceForm.invalid">
+            <span *ngIf="isSubmitting"><span class="spinner" style="border-width: 2px;"></span></span>
+            <span *ngIf="!isSubmitting">Publicar Serviço</span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+</div>
