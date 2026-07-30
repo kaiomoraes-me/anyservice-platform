@@ -1,6 +1,7 @@
-<div class="auth-wrapper">
-  <div class="glass-container">
+<div class="page-container fade-in centered-layout">
+  <div class="glass-panel auth-panel">
     <div class="auth-header">
+      <div class="logo-mark auth-logo"></div>
       <h1>Verifique seu E-mail</h1>
       <p>Enviamos um código de 6 dígitos para <strong>{{ email }}</strong></p>
     </div>
@@ -18,13 +19,13 @@
       }
 
       <div class="input-group" [class.has-error]="verifyForm.get('code')?.invalid && verifyForm.get('code')?.touched">
-        <label for="code">Código de Verificação</label>
-        <input type="text" id="code" formControlName="code" placeholder="000000" maxlength="6" class="text-center text-tracking">
+        <label for="code" style="color:var(--color-text-secondary); font-size:var(--text-sm); font-weight:500;">Código de Verificação</label>
+        <input type="text" class="minimal-input text-center text-tracking" id="code" formControlName="code" placeholder="000000" maxlength="6">
       </div>
 
-      <button type="submit" class="submit-btn" [disabled]="isLoading || successMessage">
+      <button type="submit" class="btn-premium" style="width:100%; justify-content:center; margin-top:var(--space-sm);" [disabled]="isLoading || successMessage">
         @if(isLoading) {
-          <span class="spinner"></span> Verificando...
+          <span class="spinner" style="display:inline-block; width:18px; height:18px; border:2px solid var(--color-border); border-top-color:var(--color-text-primary); border-radius:50%; animation:spin 0.8s linear infinite;"></span> Verificando...
         } @else {
           Ativar Conta
         }

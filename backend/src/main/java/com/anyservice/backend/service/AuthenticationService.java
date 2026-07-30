@@ -92,7 +92,11 @@ public class AuthenticationService {
                 )
         );
         
-        String jwtToken = jwtService.generateToken(user);
+        java.util.Map<String, Object> extraClaims = new java.util.HashMap<>();
+        extraClaims.put("id", user.getId());
+        extraClaims.put("role", user.getRole().name());
+        
+        String jwtToken = jwtService.generateToken(extraClaims, user);
         return new AuthenticationResponse(jwtToken);
     }
 

@@ -53,3 +53,7 @@ vonage:
   api-key: ${VONAGE_API_KEY:}
   api-secret: ${VONAGE_API_SECRET:}
   from-name: ${VONAGE_FROM_NAME:AnyService}
+
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY:}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:}

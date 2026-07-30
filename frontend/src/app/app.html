@@ -1,1 +1,43 @@
-<router-outlet></router-outlet>
+<!-- HEADER GLOBAL MINIMALISTA -->
+<header class="global-header glass-header" [class.menu-open]="isMenuOpen">
+  <div class="logo-container" (click)="goHome()">
+    <div class="logo-mark"></div>
+    <span class="logo-text">AnyService</span>
+  </div>
+
+  <!-- BOTAO HAMBURGUER (Acessível) -->
+  <button class="hamburger-btn" 
+          [attr.aria-expanded]="isMenuOpen" 
+          aria-label="Abrir Menu Principal" 
+          (click)="toggleMenu()">
+    <div class="hamburger-line top"></div>
+    <div class="hamburger-line bottom"></div>
+  </button>
+</header>
+
+<!-- OVERLAY DO MENU -->
+<div class="menu-overlay" [class.active]="isMenuOpen">
+  <nav class="menu-nav">
+    <!-- Links Públicos -->
+    <a routerLink="/" class="menu-link" (click)="closeMenu()">Montra</a>
+    
+    <!-- Links Autenticados -->
+    <ng-container *ngIf="isAuthenticated()">
+      <a routerLink="/my-orders" class="menu-link" (click)="closeMenu()">Meus Pedidos</a>
+      <a *ngIf="isProvider()" routerLink="/my-services" class="menu-link" (click)="closeMenu()">Meus Anúncios</a>
+      <a routerLink="/profile" class="menu-link" (click)="closeMenu()">Meu Perfil</a>
+      <button class="menu-link logout" (click)="logout()">Sair</button>
+    </ng-container>
+
+    <!-- Links Não Autenticados -->
+    <ng-container *ngIf="!isAuthenticated()">
+      <a routerLink="/login" class="menu-link" (click)="closeMenu()">Entrar</a>
+      <a routerLink="/register" class="menu-link" (click)="closeMenu()">Registar</a>
+    </ng-container>
+  </nav>
+</div>
+
+<!-- CONTEÚDO DA PÁGINA -->
+<main class="main-content" [class.blurred]="isMenuOpen">
+  <router-outlet></router-outlet>
+</main>

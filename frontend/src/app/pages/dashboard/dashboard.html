@@ -1,30 +1,48 @@
-<div class="dashboard-wrapper">
-  <nav class="topbar">
-    <div class="logo">
-      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
-        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-        <polyline points="2 17 12 22 22 17"></polyline>
-        <polyline points="2 12 12 17 22 12"></polyline>
-      </svg>
-      <span>AnyService</span>
+<div class="page-container fade-in">
+  
+  <header class="showcase-header">
+    <h1 class="hero-title">A excelência num clique.</h1>
+    <p class="hero-subtitle">Descubra os melhores profissionais para o seu próximo projeto.</p>
+    
+    <div class="filters">
+      <select class="minimal-input" [(ngModel)]="selectedCategory" (change)="onCategoryChange()" aria-label="Filtrar por categoria">
+        <option value="">Todas as Categorias</option>
+        <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+      </select>
     </div>
-    <div class="nav-actions">
-      <a routerLink="/profile" class="btn-profile">Meu Perfil</a>
-      <button class="logout-btn" (click)="logout()">Sair</button>
-    </div>
-  </nav>
+  </header>
 
-  <main class="content">
-    <div class="welcome-card">
-      <h1>Bem-vindo ao Dashboard! 🎉</h1>
-      <p>Você entrou com sucesso usando o seu Token JWT.</p>
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="state-container">
+    <div class="spinner"></div>
+    <p>A procurar...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && allListings.length === 0" class="state-container">
+    <h2>Sem resultados.</h2>
+    <p>Ainda não existem serviços disponíveis nesta categoria.</p>
+  </div>
+
+  <!-- Grid -->
+  <div *ngIf="!isLoading && allListings.length > 0" class="grid-fluid">
+    <article class="glass-panel service-card" *ngFor="let service of allListings" [routerLink]="['/services', service.id]" tabindex="0">
       
-      <div class="status-box">
-        <div class="status-item">
-          <span class="label">Status da Conexão:</span>
-          <span class="value success">Protegida (JWT Interceptor Ativo)</span>
+      <div class="provider-info">
+        <div class="provider-avatar">
+          <img *ngIf="service.provider.profilePictureUrl" [src]="service.provider.profilePictureUrl" alt="Foto do prestador">
+          <div *ngIf="!service.provider.profilePictureUrl" class="avatar-placeholder">{{ service.provider.name.charAt(0) }}</div>
         </div>
+        <span class="provider-name">{{ service.provider.name }}</span>
       </div>
-    </div>
-  </main>
+
+      <div class="service-category">{{ service.category }}</div>
+      <h3 class="service-title">{{ service.title }}</h3>
+      
+      <footer class="service-footer">
+        <div class="service-price">€{{ service.price }}</div>
+        <button class="btn-premium btn-premium-outline">Ver Detalhes</button>
+      </footer>
+    </article>
+  </div>
 </div>

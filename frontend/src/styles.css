@@ -1,13 +1,267 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-body, html {
-  margin: 0;
-  padding: 0;
-  font-family: 'Inter', system-ui, sans-serif;
-  background-color: #11111a;
-  color: #ffffff;
+:root {
+  /* ==========================================================================
+     PALETA MONOCROMÁTICA (PREMIUM DARK)
+     ========================================================================== */
+  --color-bg-base: #121212;
+  --color-bg-elevated: #1a1a1a;
+  --color-bg-glass: rgba(26, 26, 26, 0.65);
+  --color-bg-glass-light: rgba(255, 255, 255, 0.03);
+  
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-hover: rgba(255, 255, 255, 0.15);
+  
+  --color-text-primary: #f0f0f0;
+  --color-text-secondary: #a0a0a0;
+  --color-text-tertiary: #666666;
+
+  --color-accent: #ffffff; /* Elementos interativos puros */
+  --color-focus: rgba(255, 255, 255, 0.3); /* Anel de foco acessível */
+
+  /* ==========================================================================
+     TIPOGRAFIA FLUIDA (Mobile First -> Ultrawide)
+     ========================================================================== */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  
+  --text-xs: clamp(0.75rem, 0.7vw + 0.5rem, 0.875rem);
+  --text-sm: clamp(0.875rem, 0.8vw + 0.5rem, 1rem);
+  --text-base: clamp(1rem, 1vw + 0.5rem, 1.125rem);
+  --text-lg: clamp(1.125rem, 1.5vw + 0.5rem, 1.5rem);
+  --text-xl: clamp(1.5rem, 2.5vw + 0.5rem, 2.5rem);
+  --text-2xl: clamp(2rem, 4vw + 0.5rem, 4rem);
+
+  /* ==========================================================================
+     ESPAÇAMENTOS FLUIDOS
+     ========================================================================== */
+  --space-xs: clamp(0.25rem, 0.5vw, 0.5rem);
+  --space-sm: clamp(0.5rem, 1vw, 1rem);
+  --space-md: clamp(1rem, 2vw, 1.5rem);
+  --space-lg: clamp(1.5rem, 3vw, 2.5rem);
+  --space-xl: clamp(2.5rem, 5vw, 4rem);
+  --space-2xl: clamp(4rem, 8vw, 8rem);
+
+  /* ==========================================================================
+     ANIMAÇÕES
+     ========================================================================== */
+  --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-* {
+/* ==========================================================================
+   RESET & BASE STYLES
+   ========================================================================== */
+*, *::before, *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: var(--color-bg-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+a {
+  color: var(--color-text-primary);
+  text-decoration: none;
+  transition: opacity var(--transition-fast);
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+button {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  outline: none;
+}
+
+/* ==========================================================================
+   ACESSIBILIDADE (WCAG FOCUS)
+   ========================================================================== */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* ==========================================================================
+   CLASSES UTILITÁRIAS (GLASSMORPHISM E LAYOUT)
+   ========================================================================== */
+.glass-panel {
+  background: var(--color-bg-glass-light);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: var(--space-md);
+  transition: transform var(--transition-smooth), border-color var(--transition-smooth), background var(--transition-smooth);
+}
+
+.glass-panel:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-border-hover);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Campos de Input Minimalistas */
+.minimal-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
+  font-size: var(--text-base);
+  padding: var(--space-sm) 0;
+  transition: border-color var(--transition-fast);
+}
+
+.minimal-input:focus {
+  outline: none;
+  border-bottom-color: var(--color-accent);
+}
+
+/* Botões Premium */
+.btn-premium {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-text-primary);
+  color: var(--color-bg-base);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: 100px;
+  font-weight: 500;
+  font-size: var(--text-sm);
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+  will-change: transform, opacity;
+}
+
+.btn-premium:hover {
+  transform: scale(1.02);
+  opacity: 0.9;
+}
+
+.btn-premium:active {
+  transform: scale(0.98);
+}
+
+.btn-block {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-premium-outline {
+  background: transparent;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+
+.btn-premium-outline:hover {
+  border-color: var(--color-accent);
+}
+
+/* Grelhas Modernas */
+.grid-fluid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: var(--space-md);
+}
+
+/* Animações de Estado */
+.fade-in {
+  animation: fadeIn var(--transition-smooth) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Ocultar barra de rolagem (Estética) */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
+/* ==========================================================================
+   AUTHENTICATION LAYOUT (GLOBAL)
+   ========================================================================== */
+.centered-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px);
+  padding: var(--space-xl) 0;
+}
+
+.auth-panel {
+  width: 100%;
+  max-width: 480px;
+  padding: var(--space-2xl) var(--space-xl);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.auth-logo {
+  margin-bottom: var(--space-md);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.auth-header h1 {
+  color: var(--color-text-primary);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  margin: 0 0 var(--space-xs) 0;
+  letter-spacing: -0.03em;
+}
+
+.auth-header p {
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+  margin: 0;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
 }

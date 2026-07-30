@@ -1,11 +1,12 @@
-<div class="auth-wrapper">
-  <div class="glass-container">
-    <div class="auth-header">
+<div class="page-container fade-in centered-layout">
+  <div class="glass-panel auth-panel">
+    <div class="login-header">
+      <div class="logo-mark auth-logo"></div>
       <h1>Criar Conta</h1>
       <p>Junte-se ao AnyService e ofereça ou contrate serviços!</p>
     </div>
 
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="login-form">
       @if(errorMessage) {
         <div class="error-banner">
           {{ errorMessage }}
@@ -14,47 +15,47 @@
 
       <div class="input-group" [class.has-error]="registerForm.get('name')?.invalid && registerForm.get('name')?.touched">
         <label for="name">Nome Completo</label>
-        <input type="text" id="name" formControlName="name" placeholder="Ex: João da Silva">
+        <input type="text" class="minimal-input" id="name" formControlName="name" placeholder="Ex: João da Silva">
       </div>
 
       <div class="input-group" [class.has-error]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
         <label for="username">Nome de Usuário (@)</label>
-        <div class="input-with-prefix" style="display: flex; align-items: center; background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(0, 0, 0, 0.1); border-radius: 12px; overflow: hidden; transition: all 0.3s ease;">
-          <span class="prefix" style="padding: 0.8rem 0 0.8rem 1rem; color: #7f8c8d; font-weight: 600;">@</span>
-          <input type="text" id="username" formControlName="username" placeholder="seunome" style="border: none; background: transparent; flex: 1;">
+        <div class="input-with-prefix minimal-input" style="padding:0; display:flex; align-items:center;">
+          <span class="prefix" style="padding-left:1rem; color:var(--color-text-tertiary); font-weight:600;">@</span>
+          <input type="text" id="username" formControlName="username" placeholder="seunome" style="border:none; background:transparent; flex:1; outline:none; padding-left:0.5rem; color:var(--color-text-primary);">
         </div>
         @if(registerForm.get('username')?.hasError('pattern') && registerForm.get('username')?.touched) {
-          <span class="field-error-text" style="color: #e74c3c; font-size: 0.8rem; margin-top: 0.25rem;">Apenas letras minúsculas, números e _.</span>
+          <span class="field-error-text" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.25rem;">Apenas letras minúsculas, números e _.</span>
         }
       </div>
 
       <div class="input-group" [class.has-error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
         <label for="email">E-mail</label>
-        <input type="email" id="email" formControlName="email" placeholder="nome@email.com">
+        <input type="email" class="minimal-input" id="email" formControlName="email" placeholder="nome@email.com">
       </div>
 
       <div class="input-group" [class.has-error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
         <label for="password">Senha</label>
-        <input type="password" id="password" formControlName="password" placeholder="Mínimo 6 caracteres">
+        <input type="password" class="minimal-input" id="password" formControlName="password" placeholder="Mínimo 6 caracteres">
       </div>
 
       <div class="input-group" [class.has-error]="(registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) || (registerForm.hasError('passwordsMismatch') && registerForm.get('confirmPassword')?.touched)">
         <label for="confirmPassword">Confirmar Senha</label>
-        <input type="password" id="confirmPassword" formControlName="confirmPassword" placeholder="Repita a senha">
+        <input type="password" class="minimal-input" id="confirmPassword" formControlName="confirmPassword" placeholder="Repita a senha">
         @if(registerForm.hasError('passwordsMismatch') && registerForm.get('confirmPassword')?.touched) {
-          <span class="field-error-text">As senhas não coincidem.</span>
+          <span class="field-error-text" style="color: #ef4444; font-size: 0.8rem;">As senhas não coincidem.</span>
         }
       </div>
 
       <div class="input-group">
         <label for="role">Eu quero...</label>
-        <select id="role" formControlName="role">
+        <select id="role" class="minimal-input" formControlName="role">
           <option value="CLIENT">Contratar Serviços (Cliente)</option>
           <option value="PROVIDER">Oferecer Serviços (Prestador)</option>
         </select>
       </div>
 
-      <button type="submit" class="submit-btn" [disabled]="isLoading">
+      <button type="submit" class="btn-premium btn-block" [disabled]="isLoading">
         @if(isLoading) {
           <span class="spinner"></span> Criando...
         } @else {
@@ -62,7 +63,7 @@
         }
       </button>
 
-      <div class="login-prompt">
+      <div class="register-prompt">
         Já tem uma conta? <a routerLink="/login">Faça Login</a>
       </div>
     </form>
