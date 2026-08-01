@@ -25,6 +25,8 @@ services:
       - "8080:8080"
     env_file:
       - .env
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       - db
     restart: unless-stopped
@@ -50,3 +52,4 @@ networks:
 
 volumes:
   postgres_data:
+  uploads_data:

@@ -31,9 +31,14 @@ FROM eclipse-temurin:17-jre-alpine
 
 # Cria um usuário não-root por segurança (Boas práticas Enterprise)
 RUN addgroup -S spring && adduser -S spring -G spring
-USER spring:spring
 
 WORKDIR /app
+
+# Cria o diretório de uploads com permissões do user spring (antes de trocar de user)
+# Isso garante que o volume montado pelo Docker Compose será gravável
+RUN mkdir -p /app/uploads/avatars && chown -R spring:spring /app/uploads
+
+USER spring:spring
 
 # Copia o arquivo .jar gerado no Estágio 1 (builder) para este estágio limpo
 COPY --from=builder /app/target/*.jar app.jar
