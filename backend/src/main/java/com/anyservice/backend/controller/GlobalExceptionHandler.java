@@ -15,6 +15,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
     }
 
+    /** Handles missing static resources (like old avatars), returning 404 Not Found. */
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<MessageResponse> handleNoResourceFound(org.springframework.web.servlet.resource.NoResourceFoundException ex) {
+        return ResponseEntity.status(404).body(new MessageResponse("Recurso não encontrado."));
+    }
+
     /** Catches all other unhandled exceptions, returning a generic 500 Internal Server Error. */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<MessageResponse> handleGeneralException(Exception ex) {
