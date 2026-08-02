@@ -8,9 +8,11 @@ import com.anyservice.backend.model.ServiceOrder;
 import com.anyservice.backend.model.User;
 import com.anyservice.backend.repository.ChatMessageRepository;
 import com.anyservice.backend.repository.ServiceOrderRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import java.util.UUID;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,10 +24,12 @@ public class ChatController {
 
     private final ChatMessageRepository chatRepository;
     private final ServiceOrderRepository orderRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public ChatController(ChatMessageRepository chatRepository, ServiceOrderRepository orderRepository) {
+    public ChatController(ChatMessageRepository chatRepository, ServiceOrderRepository orderRepository, ApplicationEventPublisher eventPublisher) {
         this.chatRepository = chatRepository;
         this.orderRepository = orderRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     /** Returns the full message history for a given order (requires PAID status). */
@@ -58,6 +62,18 @@ public class ChatController {
         msg.setSender(currentUser);
         msg.setContent(dto.getContent());
         msg = chatRepository.save(msg);
+
+        Long recipientId = order.getClient().getId().equals(currentUser.getId()) 
+                ? order.getProvider().getId() 
+                : order.getClient().getId();
+
+        eventPublisher.publishEvent(new com.anyservice.backend.service.event.NotificationEvent(
+                recipientId,
+                currentUser.getId(),
+                "CHAT_MESSAGE",
+                msg.getId(),
+                "SENT_MESSAGE"
+        ));
 
         return ResponseEntity.ok(mapToDto(msg));
     }

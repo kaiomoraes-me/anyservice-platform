@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet, RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Auth } from './core/auth/auth';
+import { NotificationService, AppNotification } from './core/services/notification.service';
 
 @Component({
   selector: 'app-root',
@@ -13,8 +14,24 @@ import { Auth } from './core/auth/auth';
 export class App {
   private auth = inject(Auth);
   private router = inject(Router);
+  private notificationService = inject(NotificationService);
   
   isMenuOpen = false;
+  isNotifOpen = false;
+  unreadCount = 0;
+  notifications: AppNotification[] = [];
+
+  constructor() {
+    // If user is already logged in on startup
+    if (this.isAuthenticated()) {
+      this.notificationService.initialize();
+    }
+
+    this.notificationService.unreadNotifications$.subscribe(notifs => {
+      this.notifications = notifs;
+      this.unreadCount = notifs.length;
+    });
+  }
 
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
@@ -50,7 +67,13 @@ export class App {
 
   logout() {
     this.auth.logout();
+    this.notificationService.disconnect();
     this.closeMenu();
     this.router.navigate(['/login']);
+  }
+  
+  readNotification(id: string) {
+    this.notificationService.markAsRead(id);
+    // You could also navigate the user to the relevant page based on entityType here
   }
 }

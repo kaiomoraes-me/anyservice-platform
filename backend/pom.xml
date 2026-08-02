@@ -93,6 +93,11 @@
 			<artifactId>server-sdk</artifactId>
 			<version>8.13.0</version>
 		</dependency>
+		<!-- WebSocket for Real-time Notifications -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

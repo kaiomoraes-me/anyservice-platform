@@ -75,6 +75,13 @@ O projeto adota uma arquitetura baseada em microsserviços lógicos, separando c
 - **CI/CD:** Pipeline automatizada usando **GitHub Actions**. A cada push na `main`, os testes rodam, as imagens são buildadas e o deploy ocorre via SSH na AWS.
 - **Cloud Hosting:** Instância Amazon EC2 (Ubuntu).
 
+### Sistema de Notificacoes em Tempo Real (Real-Time Messaging)
+A plataforma conta com um sistema de notificacoes resiliente projetado com engenharia de confiabilidade (Harness Engineering):
+- **Desacoplamento Event-Driven:** Os gatilhos de acao (como compras e mensagens) emitem eventos assincronos (`ApplicationEventPublisher` via `@Async`) para que a thread principal nao seja bloqueada.
+- **Idempotencia:** O banco de dados assegura unicidade na tripla `recipient_id`, `entity_id` e `action_type`, prevenindo duplicacao de estado em casos de *retries* de rede.
+- **WebSocket (STOMP/SockJS):** A comunicacao bi-direcional e assegurada pelo broker nativo do Spring com WebSocketSecurityInterceptor capturando JWT no frame CONNECT.
+- **Gerenciamento de Estado (Optimistic UI):** O Frontend em Angular utiliza `BehaviorSubject` do RxJS para prover interface otimista. Quando uma notificacao e lida, a UI atualiza instantaneamente, despachando o evento `PATCH` em background com mecanismos de *rollback* silencioso em caso de timeout de rede.
+
 ---
 
 ## Como Rodar Localmente

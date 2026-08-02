@@ -5,14 +5,41 @@
     <span class="logo-text">AnyService</span>
   </div>
 
-  <!-- BOTAO HAMBURGUER (Acessível) -->
-  <button class="hamburger-btn" 
-          [attr.aria-expanded]="isMenuOpen" 
-          aria-label="Abrir Menu Principal" 
-          (click)="toggleMenu()">
-    <div class="hamburger-line top"></div>
-    <div class="hamburger-line bottom"></div>
-  </button>
+  <!-- CONJUNTO DE AÇÕES (Notificações + Menu) -->
+  <div class="header-actions">
+    
+    <!-- SINO DE NOTIFICAÇÕES -->
+    <div class="notification-wrapper" *ngIf="isAuthenticated()" (click)="isNotifOpen = !isNotifOpen">
+      <button class="bell-btn" aria-label="Notificações">
+        🔔
+        <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      </button>
+      
+      <!-- Dropdown de Notificações -->
+      <div class="notif-dropdown glass-header" *ngIf="isNotifOpen">
+        <h4>Notificações</h4>
+        <div class="notif-list">
+          <div *ngIf="notifications.length === 0" class="empty-notif">Nenhuma notificação nova.</div>
+          <div class="notif-item" *ngFor="let n of notifications" (click)="readNotification(n.id); $event.stopPropagation()">
+            <div class="notif-content">
+              <span *ngIf="n.actionType === 'PURCHASED'">Venda: <strong>{{n.actor.name}}</strong> comprou um serviço.</span>
+              <span *ngIf="n.actionType === 'SENT_MESSAGE'">Mensagem: <strong>{{n.actor.name}}</strong> enviou uma mensagem.</span>
+            </div>
+            <span class="mark-read">✔</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTAO HAMBURGUER (Acessível) -->
+    <button class="hamburger-btn" 
+            [attr.aria-expanded]="isMenuOpen" 
+            aria-label="Abrir Menu Principal" 
+            (click)="toggleMenu()">
+      <div class="hamburger-line top"></div>
+      <div class="hamburger-line bottom"></div>
+    </button>
+  </div>
 </header>
 
 <!-- OVERLAY DO MENU -->

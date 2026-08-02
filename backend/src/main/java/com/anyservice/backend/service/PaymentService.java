@@ -10,6 +10,7 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,13 +22,15 @@ public class PaymentService {
 
     private final ServiceOrderRepository orderRepository;
     private final ServiceListingRepository listingRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Value("${app.base-url:http://localhost:4200}")
     private String appBaseUrl;
 
-    public PaymentService(ServiceOrderRepository orderRepository, ServiceListingRepository listingRepository) {
+    public PaymentService(ServiceOrderRepository orderRepository, ServiceListingRepository listingRepository, ApplicationEventPublisher eventPublisher) {
         this.orderRepository = orderRepository;
         this.listingRepository = listingRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     /** Creates a Stripe Checkout session and persists a PENDING order in the database. */
@@ -86,9 +89,18 @@ public class PaymentService {
     @Transactional
     public void markOrderAsPaid(String stripeSessionId) {
         ServiceOrder order = orderRepository.findByStripeSessionId(stripeSessionId);
-        if (order != null) {
+        if (order != null && order.getStatus() != OrderStatus.PAID) {
             order.setStatus(OrderStatus.PAID);
             orderRepository.save(order);
+            
+            // Disparar evento de notificação para o prestador (Assíncrono)
+            eventPublisher.publishEvent(new com.anyservice.backend.service.event.NotificationEvent(
+                    order.getProvider().getId(),
+                    order.getClient().getId(),
+                    "SERVICE_ORDER",
+                    order.getId(),
+                    "PURCHASED"
+            ));
         }
     }
 }
