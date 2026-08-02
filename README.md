@@ -6,7 +6,7 @@
 
 ---
 
-## 🚀 Como Usar a Plataforma
+## Como Usar a Plataforma
 
 Para garantir a melhor experiência, o ecossistema deve ser executado localmente utilizando o **Docker Compose**. O ambiente já inclui bancos de dados isolados, RabbitMQ para mensageria, API Gateway e um servidor SMTP local (MailDev) para testes.
 
@@ -64,7 +64,7 @@ O sistema conta com um módulo de notificações distribuídas (`notification-se
 
 ---
 
-## 📐 Arquitetura do Sistema
+## Arquitetura do Sistema
 
 A plataforma Anyservice abandonou as amarras do monólito e abraçou a complexidade dos Microsserviços para garantir resiliência (*Harness Engineering*) e escalabilidade horizontal:
 
