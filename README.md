@@ -1,145 +1,82 @@
-<h1 align="center">
-  AnyService Platform
-</h1>
+# Anyservice Platform
 
-<p align="center">
-  <img alt="Status" src="https://img.shields.io/badge/Status-Em%20Desenvolvimento-orange">
-  <img alt="Java" src="https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white">
-  <img alt="Spring Boot" src="https://img.shields.io/badge/Spring%20Boot-3.1-6DB33F?logo=springboot&logoColor=white">
-  <img alt="Angular" src="https://img.shields.io/badge/Angular-18-DD0031?logo=angular&logoColor=white">
-  <img alt="Docker" src="https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white">
-  <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql&logoColor=white">
-  <img alt="Stripe" src="https://img.shields.io/badge/Stripe-Integration-008CDD?logo=stripe&logoColor=white">
-  <img alt="AWS" src="https://img.shields.io/badge/AWS-EC2-232F3E?logo=amazon-aws&logoColor=white">
-</p>
+**Anyservice** é uma plataforma distribuída (baseada em microsserviços) construída para conectar **Clientes** e **Prestadores de Serviços**. O sistema suporta um ciclo de vida completo: desde a oferta do serviço no catálogo, passando pelo pagamento simulado e culminando em um chat em tempo real liberado após a confirmação do pagamento.
 
-## Sobre o Projeto
-
-O **AnyService** é uma plataforma idealizada para conectar prestadores de serviços de diversas áreas (Encanadores, Eletricistas, Designers, Desenvolvedores, etc.) a clientes que buscam soluções rápidas e confiáveis. 
-
-A plataforma foi desenvolvida com foco em **arquitetura limpa (Clean Code/SOLID)**, escalabilidade e segurança, utilizando as melhores práticas do mercado corporativo.
-
-> [!WARNING]
-> **Aviso de Status:** Este projeto encontra-se em fase de **Desenvolvimento Ativo**. Funcionalidades estão sendo aprimoradas, e o banco de dados pode ser resetado durante ciclos de teste.
-
-> [!IMPORTANT]
-> **Fim Educacional:** Este projeto foi construído **exclusivamente para fins educacionais e de portfólio**. Não possui fins lucrativos e não processa pagamentos ou dados reais em ambiente de produção.
+> **Aviso Importante:** Este projeto não possui fins lucrativos. Foi desenhado e implementado exclusivamente para fins educacionais, validação de arquiteturas escaláveis (Graph Engineering e Event-Driven Architecture) e portfólio. As compras realizadas na plataforma são simuladas e não geram cobranças reais.
 
 ---
 
-## Acesso ao Ambiente de Produção (Live Demo)
+## 🚀 Como Usar a Plataforma
 
-A aplicação está hospedada na nuvem da AWS (EC2) com Continuous Deployment (CD) configurado via GitHub Actions.
+Para garantir a melhor experiência, o ecossistema deve ser executado localmente utilizando o **Docker Compose**. O ambiente já inclui bancos de dados isolados, RabbitMQ para mensageria, API Gateway e um servidor SMTP local (MailDev) para testes.
 
-**Acesse a plataforma aqui:** [http://16.192.77.236/](http://16.192.77.236/)
+### 1. Inicializando o Ambiente
 
-*(Nota: A configuração de DNS e certificados SSL/HTTPS será implementada em futuras iterações da infraestrutura).*
-
-### Dados para Teste (Ambiente Sandbox)
-
-Como a plataforma está em modo de teste, sinta-se à vontade para explorar os fluxos de contratação e pagamento.
-
-**Cartão de Crédito de Teste (Stripe Sandbox):**
-- **Número do Cartão:** `4242 4242 4242 4242`
-- **Validade:** Qualquer data futura (ex: `12/30`)
-- **CVC:** Qualquer código de 3 dígitos (ex: `123`)
-- **Nome/CEP:** Qualquer dado válido
-
-**Validação de SMS (Vonage/Nexmo):**
-A funcionalidade de verificação de conta via SMS está totalmente implementada no código (via Vonage API). No entanto, devido ao uso da camada gratuita (Free Tier) da Vonage, **o envio de SMS só funciona para números previamente autorizados/cadastrados na dashboard da Vonage do desenvolvedor**. 
-> Se testar com um número não cadastrado na nossa conta Vonage, o SMS de código não será entregue, mas o console do servidor logará o código gerado em ambiente de desenvolvimento.
-
----
-
-## Arquitetura e Stack Tecnológica
-
-O projeto adota uma arquitetura baseada em microsserviços lógicos, separando claramente o Frontend do Backend, conteinerizados e orquestrados via Docker Compose.
-
-### Backend (API RESTful)
-- **Linguagem/Framework:** Java 17, Spring Boot 3.1
-- **Segurança:** Autenticação Stateless com **Spring Security** e **JWT (JSON Web Tokens)**.
-- **Persistência:** Spring Data JPA / Hibernate conectado a um banco de dados **PostgreSQL 15**.
-- **Integrações de Terceiros:**
-  - **Stripe API:** Processamento de pagamentos (Checkout Sessions & Webhooks para assincronicidade).
-  - **Vonage (Nexmo) SDK:** Envio de SMS para MFA/verificação.
-  - **JavaMailSender:** Envio de e-mails transacionais (ex: recuperação de senha).
-
-### Frontend (Single Page Application - SPA)
-- **Linguagem/Framework:** TypeScript, Angular 18
-- **Estilização:** CSS moderno, design responsivo, Glassmorphism, e animações fluidas.
-- **Roteamento & Estado:** Angular Router, interceptores HTTP para injeção de JWT.
-- **Servidor Web:** Nginx (configurado via proxy reverso e gerencialmente de rotas do Angular via `try_files`).
-
-### DevOps e Infraestrutura
-- **Contêinerização:** Docker e Docker Compose. (Uso de *Multi-stage builds* no Dockerfile para otimizar o tamanho da imagem de produção).
-- **CI/CD:** Pipeline automatizada usando **GitHub Actions**. A cada push na `main`, os testes rodam, as imagens são buildadas e o deploy ocorre via SSH na AWS.
-- **Cloud Hosting:** Instância Amazon EC2 (Ubuntu).
-
-### Sistema de Notificacoes em Tempo Real (Real-Time Messaging)
-A plataforma conta com um sistema de notificacoes resiliente projetado com engenharia de confiabilidade (Harness Engineering):
-- **Desacoplamento Event-Driven:** Os gatilhos de acao (como compras e mensagens) emitem eventos assincronos (`ApplicationEventPublisher` via `@Async`) para que a thread principal nao seja bloqueada.
-- **Idempotencia:** O banco de dados assegura unicidade na tripla `recipient_id`, `entity_id` e `action_type`, prevenindo duplicacao de estado em casos de *retries* de rede.
-- **WebSocket (STOMP/SockJS):** A comunicacao bi-direcional e assegurada pelo broker nativo do Spring com WebSocketSecurityInterceptor capturando JWT no frame CONNECT.
-- **Gerenciamento de Estado (Optimistic UI):** O Frontend em Angular utiliza `BehaviorSubject` do RxJS para prover interface otimista. Quando uma notificacao e lida, a UI atualiza instantaneamente, despachando o evento `PATCH` em background com mecanismos de *rollback* silencioso em caso de timeout de rede.
-
----
-
-## Como Rodar Localmente
-
-Caso seja um desenvolvedor, avaliador técnico ou queira contribuir, siga o guia abaixo para rodar toda a infraestrutura em sua máquina.
-
-### Pré-requisitos
-- [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/) instalados.
-- [Node.js 22+](https://nodejs.org/) (apenas se for rodar o Frontend fora do Docker).
-- [Java 17+](https://adoptium.net/) e Maven (apenas se for rodar o Backend fora do Docker).
-- [Git](https://git-scm.com/)
-
-### 1. Clonar o Repositório
-```bash
-git clone https://github.com/kaiomoraes-me/anyservice-platform.git
-cd anyservice-platform
-```
-
-### 2. Configurar Variáveis de Ambiente
-Na raiz do repositório clonado, crie um arquivo chamado `.env` e configure as credenciais necessárias. (Você precisará de chaves de teste para o Stripe e Vonage para o sistema completo funcionar):
-
-```env
-# Banco de Dados
-DB_HOST=db
-DB_USER=postgres
-DB_PASSWORD=sua_senha_segura
-DB_NAME=anyservice_db
-
-# Segurança JWT
-JWT_SECRET=super_secret_jwt_key_that_should_be_at_least_256_bits_long
-
-# URL Base (Necessário para o CORS e redirecionamento do Stripe)
-APP_BASE_URL=http://localhost:4200
-
-# E-mail (SMTP)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=seu_email@gmail.com
-SMTP_PASSWORD=sua_senha_de_app
-
-# Integrações
-VONAGE_API_KEY=sua_chave_vonage
-VONAGE_API_SECRET=seu_secret_vonage
-STRIPE_SECRET_KEY=sk_test_sua_chave_stripe
-STRIPE_WEBHOOK_SECRET=whsec_seu_webhook_secret
-```
-
-### 3. Iniciar a Aplicação com Docker Compose
-Com o `.env` configurado, basta um comando para levantar o Banco de Dados, o Backend e o Frontend:
+Na raiz do projeto (onde se encontra o `docker-compose.yml`), execute o comando para compilar e iniciar todos os contêineres:
 
 ```bash
-docker compose up --build -d
+docker-compose up --build -d
 ```
-Após o build finalizar, acesse:
-- **Frontend:** `http://localhost:80` (O Nginx servirá o Angular nesta porta localmente).
-- **Backend API:** `http://localhost:8080/api`
+
+Aguarde até que os serviços `user-service`, `catalog-service`, `order-service`, `chat-service`, `notification-service`, `api-gateway` e `frontend` estejam de pé.
+O Frontend (UI) estará acessível em: **[http://localhost:4200](http://localhost:4200)** (caso rode o Node.js manualmente) ou **[http://localhost](http://localhost)** via Docker.
+
+### 2. Cadastro e Verificação de E-mail (MailDev)
+
+Acesse a plataforma, clique em **Registrar** e crie a sua conta (como `CLIENT` ou `PROVIDER`). 
+O sistema exige a verificação de e-mail antes do login.
+
+- Como estamos em ambiente de desenvolvimento, não enviamos e-mails de verdade. Em vez disso, utilizamos o **MailDev**.
+- Acesse a interface do MailDev em: **[http://localhost:1080](http://localhost:1080)**
+- Lá você encontrará o e-mail contendo o seu **código de verificação secreto**. Copie o código, ative sua conta e faça o login.
+
+### 3. Criando um Serviço (Perfil: Prestador)
+
+Se você se cadastrou como **Prestador de Serviço (`PROVIDER`)**:
+1. Após o login, vá para o seu **Dashboard** ou seção **Meus Serviços**.
+2. Clique em **Novo Serviço**.
+3. Preencha o título, descrição, categoria e o valor do seu serviço. 
+4. O seu serviço será publicado no catálogo global instantaneamente (gerenciado pelo `catalog-service`).
+
+### 4. Pagamento e Contratação (Perfil: Cliente)
+
+Se você se cadastrou como **Cliente (`CLIENT`)**:
+1. Na página inicial, navegue pelo catálogo e escolha um serviço oferecido por um Prestador.
+2. Clique em **Contratar** ou **Comprar**.
+3. Você será redirecionado para o Checkout (integrado em modo de teste).
+4. **Cartão de Crédito Falso:** Você pode simular a compra utilizando os cartões de teste da Stripe. 
+   - **Número do Cartão:** `4242 4242 4242 4242`
+   - **Validade:** Qualquer data futura (ex: `12/34`)
+   - **CVC:** Qualquer número de 3 dígitos (ex: `123`)
+5. Ao confirmar, o `order-service` processará o pagamento de forma simulada.
+
+### 5. Conversação no Chat (Tempo Real)
+
+Uma vez que o pagamento foi confirmado pelo sistema (Webhook da Stripe -> RabbitMQ -> Order Service), o canal de comunicação entre o **Cliente** e o **Prestador** é liberado.
+
+1. Acesse a aba **Mensagens / Chat**.
+2. A sala de bate-papo correspondente àquela ordem de serviço estará ativa.
+3. Você pode trocar mensagens em tempo real com o prestador/cliente. Toda a comunicação ocorre via WebSockets (gerenciado pelo `chat-service`).
+
+### 6. Notificações (Push)
+
+O sistema conta com um módulo de notificações distribuídas (`notification-service`). Quando uma compra é aprovada ou uma nova mensagem chega, o backend emite eventos via RabbitMQ. O Frontend, conectado via WebSocket/STOMP, recebe a notificação em tempo real, informando o usuário sem a necessidade de recarregar a página.
 
 ---
 
-## Licença
-Este é um projeto acadêmico/portfólio e está licenciado sob os termos da licença MIT (sem restrições de uso educacional).
+## 📐 Arquitetura do Sistema
+
+A plataforma Anyservice abandonou as amarras do monólito e abraçou a complexidade dos Microsserviços para garantir resiliência (*Harness Engineering*) e escalabilidade horizontal:
+
+- **Frontend:** Angular 17+ (Design Estrito e Monocromático: apenas Preto `#000000` e Branco `#FFFFFF`).
+- **API Gateway:** Spring Cloud Gateway (Porta 8080) com Circuit Breakers.
+- **User Service:** Emissão de JWT, autenticação e perfis (Porta 8081).
+- **Catalog Service:** Gestão de anúncios (Porta 8082).
+- **Order Service:** Checkouts e processamento de status via Webhooks (Porta 8083).
+- **Chat Service:** WebSockets para conversas pós-pagamento (Porta 8084).
+- **Notification Service:** WebSockets/STOMP para avisos globais (Porta 8085).
+- **Mensageria:** RabbitMQ para coreografia SAGA e processamento assíncrono.
+- **Dados:** Um container PostgreSQL para cada serviço (Database-per-Service isolado).
+
+---
+*Este é um projeto Open-Source para estudos. Sinta-se livre para clonar e explorar a infraestrutura.*

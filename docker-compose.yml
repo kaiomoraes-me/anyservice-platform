@@ -1,38 +1,202 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres:15-alpine
-    container_name: anyservice_db
-    environment:
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
-      POSTGRES_DB: ${DB_NAME:-anyservice_db}
+  # Message Broker (Event-Driven Communication)
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: anyservice_rabbitmq
     ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
     networks:
       - anyservice_net
 
-  backend:
+  # API Gateway (Spring Cloud Gateway)
+  api-gateway:
     build: 
-      context: ./backend
+      context: ./api-gateway
       dockerfile: Dockerfile
-    container_name: anyservice_backend
+    container_name: anyservice_api_gateway
     ports:
       - "8080:8080"
-    env_file:
-      - .env
-    volumes:
-      - uploads_data:/app/uploads
+    environment:
+      - USER_SERVICE_HOST=user-service
+      - CATALOG_SERVICE_HOST=catalog-service
+      - ORDER_SERVICE_HOST=order-service
+      - CHAT_SERVICE_HOST=chat-service
+      - NOTIFICATION_SERVICE_HOST=notification-service
     depends_on:
-      - db
+      - rabbitmq
     restart: unless-stopped
     networks:
       - anyservice_net
 
+  user-service:
+    build: 
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: anyservice_user_service
+    environment:
+      - DB_HOST=db_user
+      - DB_PASSWORD=password
+      - DB_NAME=anyservice_user
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - db_user
+      - rabbitmq
+    networks:
+      - anyservice_net
+
+  catalog-service:
+    build: 
+      context: ./catalog-service
+      dockerfile: Dockerfile
+    container_name: anyservice_catalog_service
+    environment:
+      - DB_HOST=db_catalog
+      - DB_PASSWORD=password
+      - DB_NAME=anyservice_catalog
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - db_catalog
+    networks:
+      - anyservice_net
+
+  order-service:
+    build: 
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: anyservice_order_service
+    environment:
+      - DB_HOST=db_order
+      - DB_PASSWORD=password
+      - DB_NAME=anyservice_order
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - db_order
+      - rabbitmq
+    networks:
+      - anyservice_net
+      
+  chat-service:
+    build: 
+      context: ./chat-service
+      dockerfile: Dockerfile
+    container_name: anyservice_chat_service
+    environment:
+      - DB_HOST=db_chat
+      - DB_PASSWORD=password
+      - DB_NAME=anyservice_chat
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - db_chat
+      - rabbitmq
+    networks:
+      - anyservice_net
+      
+  notification-service:
+    build: 
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: anyservice_notification_service
+    environment:
+      - DB_HOST=db_notification
+      - DB_PASSWORD=password
+      - DB_NAME=anyservice_notification
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - db_notification
+      - rabbitmq
+    networks:
+      - anyservice_net
+
+  # Isolated Database for User Service
+  db_user:
+    image: postgres:15-alpine
+    container_name: db_user
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: anyservice_user
+    ports:
+      - "5437:5432"
+    volumes:
+      - postgres_user_data:/var/lib/postgresql/data
+    networks:
+      - anyservice_net
+
+  # Isolated Database for Catalog Service
+  db_catalog:
+    image: postgres:15-alpine
+    container_name: db_catalog
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: anyservice_catalog
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_catalog_data:/var/lib/postgresql/data
+    networks:
+      - anyservice_net
+
+  # Isolated Database for Order Service
+  db_order:
+    image: postgres:15-alpine
+    container_name: db_order
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: anyservice_order
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_order_data:/var/lib/postgresql/data
+    networks:
+      - anyservice_net
+      
+  db_chat:
+    image: postgres:15-alpine
+    container_name: db_chat
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: anyservice_chat
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_chat_data:/var/lib/postgresql/data
+    networks:
+      - anyservice_net
+      
+  db_notification:
+    image: postgres:15-alpine
+    container_name: db_notification
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: anyservice_notification
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres_notification_data:/var/lib/postgresql/data
+    networks:
+      - anyservice_net
+
+  # Local SMTP Testing Server (MailDev)
+  maildev:
+    image: maildev/maildev
+    container_name: anyservice_maildev
+    ports:
+      - "1080:1080" # Web UI
+      - "1025:1025" # SMTP Port
+    networks:
+      - anyservice_net
+
+  # Frontend (Angular Monochromatic Redesign)
   frontend:
     build:
       context: ./frontend
@@ -41,7 +205,7 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - backend
+      - api-gateway
     restart: unless-stopped
     networks:
       - anyservice_net
@@ -51,5 +215,8 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
-  uploads_data:
+  postgres_user_data:
+  postgres_catalog_data:
+  postgres_order_data:
+  postgres_chat_data:
+  postgres_notification_data:

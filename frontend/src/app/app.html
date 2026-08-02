@@ -5,33 +5,36 @@
     <span class="logo-text">AnyService</span>
   </div>
 
-  <!-- CONJUNTO DE AÇÕES (Notificações + Menu) -->
+  <!-- CONJUNTO DE AÃ‡Ã•ES (NotificaÃ§Ãµes + Menu) -->
   <div class="header-actions">
     
-    <!-- SINO DE NOTIFICAÇÕES -->
+    <!-- SINO DE NOTIFICAÃ‡Ã•ES -->
     <div class="notification-wrapper" *ngIf="isAuthenticated()" (click)="isNotifOpen = !isNotifOpen">
-      <button class="bell-btn" aria-label="Notificações">
-        🔔
+      <button class="bell-btn" aria-label="NotificaÃ§Ãµes">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
         <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
       </button>
       
-      <!-- Dropdown de Notificações -->
+      <!-- Dropdown de NotificaÃ§Ãµes -->
       <div class="notif-dropdown glass-header" *ngIf="isNotifOpen">
-        <h4>Notificações</h4>
+        <h4>NotificaÃ§Ãµes</h4>
         <div class="notif-list">
-          <div *ngIf="notifications.length === 0" class="empty-notif">Nenhuma notificação nova.</div>
+          <div *ngIf="notifications.length === 0" class="empty-notif">Nenhuma notificaÃ§Ã£o nova.</div>
           <div class="notif-item" *ngFor="let n of notifications" (click)="readNotification(n.id); $event.stopPropagation()">
             <div class="notif-content">
-              <span *ngIf="n.actionType === 'PURCHASED'">Venda: <strong>{{n.actor.name}}</strong> comprou um serviço.</span>
+              <span *ngIf="n.actionType === 'PURCHASED'">Venda: <strong>{{n.actor.name}}</strong> comprou um serviÃ§o.</span>
               <span *ngIf="n.actionType === 'SENT_MESSAGE'">Mensagem: <strong>{{n.actor.name}}</strong> enviou uma mensagem.</span>
             </div>
-            <span class="mark-read">✔</span>
+            <span class="mark-read">âœ”</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- BOTAO HAMBURGUER (Acessível) -->
+    <!-- BOTAO HAMBURGUER (AcessÃ­vel) -->
     <button class="hamburger-btn" 
             [attr.aria-expanded]="isMenuOpen" 
             aria-label="Abrir Menu Principal" 
@@ -45,18 +48,18 @@
 <!-- OVERLAY DO MENU -->
 <div class="menu-overlay" [class.active]="isMenuOpen">
   <nav class="menu-nav">
-    <!-- Links Públicos -->
+    <!-- Links PÃºblicos -->
     <a routerLink="/" class="menu-link" (click)="closeMenu()">Montra</a>
     
     <!-- Links Autenticados -->
     <ng-container *ngIf="isAuthenticated()">
       <a routerLink="/my-orders" class="menu-link" (click)="closeMenu()">Meus Pedidos</a>
-      <a *ngIf="isProvider()" routerLink="/my-services" class="menu-link" (click)="closeMenu()">Meus Anúncios</a>
+      <a *ngIf="isProvider()" routerLink="/my-services" class="menu-link" (click)="closeMenu()">Meus AnÃºncios</a>
       <a routerLink="/profile" class="menu-link" (click)="closeMenu()">Meu Perfil</a>
       <button class="menu-link logout" (click)="logout()">Sair</button>
     </ng-container>
 
-    <!-- Links Não Autenticados -->
+    <!-- Links NÃ£o Autenticados -->
     <ng-container *ngIf="!isAuthenticated()">
       <a routerLink="/login" class="menu-link" (click)="closeMenu()">Entrar</a>
       <a routerLink="/register" class="menu-link" (click)="closeMenu()">Registar</a>
@@ -64,7 +67,7 @@
   </nav>
 </div>
 
-<!-- CONTEÚDO DA PÁGINA -->
+<!-- CONTEÃšDO DA PÃGINA -->
 <main class="main-content" [class.blurred]="isMenuOpen">
   <router-outlet></router-outlet>
 </main>

@@ -59,7 +59,7 @@
 }
 
 /* ==========================================================================
-   BOTÃO HAMBÚRGUER (Minimalista)
+   BOTÃƒO HAMBÃšRGUER (Minimalista)
    ========================================================================== */
 .hamburger-btn {
   width: 48px;
@@ -150,7 +150,7 @@
   transition: color var(--transition-fast), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease;
 }
 
-/* Animação escalonada dos links quando o menu abre */
+/* AnimaÃ§Ã£o escalonada dos links quando o menu abre */
 .menu-overlay.active .menu-link {
   transform: translateY(0);
   opacity: 1;
@@ -175,7 +175,7 @@
 }
 
 /* ==========================================================================
-   CONTEÚDO PRINCIPAL
+   CONTEÃšDO PRINCIPAL
    ========================================================================== */
 .main-content {
   padding-top: 80px; /* Compensa o header fixo */
@@ -242,12 +242,12 @@
   top: 150%;
   right: 0;
   width: 320px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--color-bg-glass);
   border-radius: 16px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.15);
   padding: 1rem;
   z-index: 1000;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--color-border);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
@@ -256,8 +256,8 @@
   margin: 0 0 1rem 0;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #1a1a24;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border);
   padding-bottom: 0.5rem;
 }
 
@@ -270,7 +270,7 @@
 }
 
 .empty-notif {
-  color: #8e8e93;
+  color: var(--color-text-secondary);
   font-size: 0.9rem;
   text-align: center;
   padding: 1rem 0;
@@ -281,24 +281,24 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: rgba(0,0,0,0.02);
+  background: var(--color-bg-elevated);
   border-radius: 12px;
   cursor: pointer;
   transition: background 0.2s;
 }
 
 .notif-item:hover {
-  background: rgba(0,0,0,0.05);
+  background: var(--color-bg-base);
 }
 
 .notif-content {
   font-size: 0.9rem;
-  color: #333;
+  color: var(--color-text-secondary);
   line-height: 1.4;
 }
 
 .mark-read {
-  color: #007aff;
+  color: var(--color-focus);
   font-size: 1.2rem;
   opacity: 0;
   transition: opacity 0.2s;

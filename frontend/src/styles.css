@@ -2,22 +2,22 @@
 
 :root {
   /* ==========================================================================
-     PALETA MONOCROMÁTICA (PREMIUM DARK)
+     PALETA DARK THEME (ESTILO GITHUB ACTIONS)
      ========================================================================== */
-  --color-bg-base: #121212;
-  --color-bg-elevated: #1a1a1a;
-  --color-bg-glass: rgba(26, 26, 26, 0.65);
-  --color-bg-glass-light: rgba(255, 255, 255, 0.03);
+  --color-bg-base: #000000;
+  --color-bg-elevated: #0d1117;
+  --color-bg-glass: #161b22;
+  --color-bg-glass-light: rgba(22, 27, 34, 0.85);
   
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-hover: rgba(255, 255, 255, 0.15);
+  --color-border: #30363d;
+  --color-border-hover: #8b949e;
   
-  --color-text-primary: #f0f0f0;
-  --color-text-secondary: #a0a0a0;
-  --color-text-tertiary: #666666;
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #8b949e;
+  --color-text-tertiary: #6e7681;
 
-  --color-accent: #ffffff; /* Elementos interativos puros */
-  --color-focus: rgba(255, 255, 255, 0.3); /* Anel de foco acessível */
+  --color-accent: #1f6feb;
+  --color-focus: #58a6ff;
 
   /* ==========================================================================
      TIPOGRAFIA FLUIDA (Mobile First -> Ultrawide)
@@ -70,13 +70,14 @@ html, body {
 }
 
 a {
-  color: var(--color-text-primary);
+  color: var(--color-accent);
   text-decoration: none;
-  transition: opacity var(--transition-fast);
+  transition: opacity var(--transition-fast), color var(--transition-fast);
 }
 
 a:hover {
-  opacity: 0.8;
+  color: var(--color-focus);
+  opacity: 0.9;
 }
 
 button {
@@ -96,70 +97,90 @@ button {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-focus);
   outline-offset: 4px;
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
 /* ==========================================================================
-   CLASSES UTILITÁRIAS (GLASSMORPHISM E LAYOUT)
+   CLASSES UTILITÁRIAS E LAYOUT (DARK THEME)
    ========================================================================== */
 .glass-panel {
-  background: var(--color-bg-glass-light);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--color-bg-glass);
   border: 1px solid var(--color-border);
-  border-radius: 16px;
+  border-radius: 12px;
   padding: var(--space-md);
   transition: transform var(--transition-smooth), border-color var(--transition-smooth), background var(--transition-smooth);
 }
 
 .glass-panel:hover {
-  transform: translateY(-4px);
+  transform: translateY(-2px);
   border-color: var(--color-border-hover);
-  background: rgba(255, 255, 255, 0.05);
+  background: #1c2128; /* Slightly lighter on hover */
 }
 
-/* Campos de Input Minimalistas */
+/* Campos de Input Minimalistas - Dark Theme Adapt */
 .minimal-input {
   width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
   color: var(--color-text-primary);
   font-family: var(--font-family);
   font-size: var(--text-base);
-  padding: var(--space-sm) 0;
-  transition: border-color var(--transition-fast);
+  padding: var(--space-sm) var(--space-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  margin-bottom: var(--space-sm);
 }
 
 .minimal-input:focus {
   outline: none;
-  border-bottom-color: var(--color-accent);
+  border-color: var(--color-focus);
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
 }
 
-/* Botões Premium */
+/* Botões Premium (Ação Secundária vs Primária) */
 .btn-premium {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-text-primary);
-  color: var(--color-bg-base);
+  background: var(--color-bg-glass);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
   padding: var(--space-sm) var(--space-lg);
-  border-radius: 100px;
+  border-radius: 6px;
   font-weight: 500;
   font-size: var(--text-sm);
-  transition: transform var(--transition-fast), opacity var(--transition-fast);
-  will-change: transform, opacity;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+  cursor: pointer;
 }
 
 .btn-premium:hover {
-  transform: scale(1.02);
-  opacity: 0.9;
+  background: var(--color-border);
+  border-color: var(--color-border-hover);
 }
 
 .btn-premium:active {
-  transform: scale(0.98);
+  background: var(--color-bg-elevated);
+}
+
+/* Botão de Ação Primária (Verde/Azul no GitHub) */
+.btn-primary {
+  background: var(--color-accent);
+  color: #FFFFFF;
+  border: 1px solid rgba(240, 246, 252, 0.1);
+  border-radius: 6px;
+  padding: var(--space-sm) var(--space-lg);
+  font-weight: 500;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: var(--color-focus);
 }
 
 .btn-block {
@@ -170,12 +191,13 @@ button {
 
 .btn-premium-outline {
   background: transparent;
-  color: var(--color-text-primary);
+  color: var(--color-text-secondary);
   border: 1px solid var(--color-border);
 }
 
 .btn-premium-outline:hover {
-  border-color: var(--color-accent);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-hover);
 }
 
 /* Grelhas Modernas */
@@ -195,19 +217,20 @@ button {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Ocultar barra de rolagem (Estética) */
+/* Scrollbar escura */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--color-bg-base);
 }
 ::-webkit-scrollbar-thumb {
   background: var(--color-border);
   border-radius: 10px;
+  border: 2px solid var(--color-bg-base);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-secondary);
+  background: var(--color-border-hover);
 }
 
 /* ==========================================================================
@@ -223,14 +246,17 @@ button {
 
 .auth-panel {
   width: 100%;
-  max-width: 480px;
-  padding: var(--space-2xl) var(--space-xl);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 440px;
+  background-color: var(--color-bg-glass);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: var(--space-xl);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes slideUp {
-  0% { opacity: 0; transform: translateY(30px); }
+  0% { opacity: 0; transform: translateY(20px); }
   100% { opacity: 1; transform: translateY(0); }
 }
 
@@ -240,7 +266,7 @@ button {
 
 .auth-header {
   text-align: center;
-  margin-bottom: var(--space-xl);
+  margin-bottom: var(--space-lg);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -249,9 +275,9 @@ button {
 .auth-header h1 {
   color: var(--color-text-primary);
   font-size: var(--text-2xl);
-  font-weight: 700;
+  font-weight: 400;
   margin: 0 0 var(--space-xs) 0;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.5px;
 }
 
 .auth-header p {
@@ -263,5 +289,40 @@ button {
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  gap: var(--space-md);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-group label {
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.form-footer {
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+/* REGRAS EXTREMAS DE UI */
+textarea {
+  resize: none !important;
+}
+
+input, textarea, select {
+  background-color: var(--color-bg-elevated) !important;
+  color: var(--color-text-primary) !important;
+  border: 1px solid var(--color-border) !important;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--color-focus) !important;
+  outline: none;
 }

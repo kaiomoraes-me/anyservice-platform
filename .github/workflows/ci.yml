@@ -9,9 +9,19 @@ on:
 jobs:
   backend-build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: 
+          - api-gateway
+          - user-service
+          - catalog-service
+          - order-service
+          - chat-service
+          - notification-service
+      fail-fast: false # Se um falhar, continua compilando os outros para ver quais têm erros
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./${{ matrix.service }}
 
     steps:
     - name: Check out the code
@@ -26,12 +36,13 @@ jobs:
 
     - name: Build with Maven
       run: |
-        chmod +x mvnw
-        ./mvnw clean package -DskipTests
+        # Dá permissão caso exista o script (nós vamos usar o mvn do próprio ubuntu se não existir)
+        chmod +x mvnw || true
+        mvn clean package -DskipTests
       
     # Se tivéssemos testes configurados, rodaríamos sem o -DskipTests:
     # - name: Run Tests
-    #   run: ./mvnw test
+    #   run: mvn test
 
   frontend-build:
     runs-on: ubuntu-latest
