@@ -5,7 +5,7 @@
     <span class="logo-text">AnyService</span>
   </div>
 
-  <app-search></app-search>
+  <app-search *ngIf="isAuthenticated()"></app-search>
 
   <!-- CONJUNTO DE AÃ‡Ã•ES (NotificaÃ§Ãµes + Menu) -->
   <div class="header-actions">
