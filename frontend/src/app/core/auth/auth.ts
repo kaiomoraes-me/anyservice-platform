@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
 
@@ -8,12 +8,16 @@ import { tap } from 'rxjs';
 export class Auth {
   private http = inject(HttpClient);
   private apiUrl = '/api/auth';
+  
+  // Sinal reativo para o estado de autenticação
+  public authState = signal<boolean>(this.isLoggedIn());
 
   login(credentials: any) {
     return this.http.post<any>(`${this.apiUrl}/authenticate`, credentials).pipe(
       tap(response => {
         if (response.token) {
           localStorage.setItem('token', response.token);
+          this.authState.set(true);
         }
       })
     );
@@ -56,5 +60,6 @@ export class Auth {
 
   logout() {
     localStorage.removeItem('token');
+    this.authState.set(false);
   }
 }

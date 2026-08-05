@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, effect } from '@angular/core';
 import { RouterOutlet, RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Auth } from './core/auth/auth';
@@ -24,10 +24,13 @@ export class App {
   notifications: AppNotification[] = [];
 
   constructor() {
-    // If user is already logged in on startup
-    if (this.isAuthenticated()) {
-      this.notificationService.initialize();
-    }
+    effect(() => {
+      if (this.auth.authState()) {
+        this.notificationService.initialize();
+      } else {
+        this.notificationService.disconnect();
+      }
+    });
 
     this.notificationService.unreadNotifications$.subscribe(notifs => {
       this.notifications = notifs;
@@ -59,7 +62,7 @@ export class App {
   }
 
   isAuthenticated(): boolean {
-    return this.auth.isLoggedIn();
+    return this.auth.authState();
   }
 
   isProvider(): boolean {
