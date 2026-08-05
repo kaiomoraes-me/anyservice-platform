@@ -4,10 +4,12 @@ import { CommonModule } from '@angular/common';
 import { Auth } from './core/auth/auth';
 import { NotificationService, AppNotification } from './core/services/notification.service';
 
+import { SearchComponent } from './components/search/search.component';
+
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, CommonModule],
+  imports: [RouterOutlet, RouterLink, CommonModule, SearchComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

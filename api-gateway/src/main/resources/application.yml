@@ -12,6 +12,12 @@ spring:
           uri: http://${USER_SERVICE_HOST:localhost}:8081
           predicates:
             - Path=/api/users/**, /api/auth/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@ipKeyResolver}"
         - id: catalog-service
           uri: http://${CATALOG_SERVICE_HOST:localhost}:8082
           predicates:
@@ -29,8 +35,18 @@ spring:
           predicates:
             - Path=/api/notifications/**, /ws-notifications/**
 
-# Actuator Endpoints for health and resilience4j
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: 6379
+
+# Actuator Endpoints for health, resilience4j and tracing
 management:
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://${ZIPKIN_HOST:localhost}:9411/api/v2/spans
   endpoints:
     web:
       exposure:

@@ -23,10 +23,22 @@ spring:
     port: 5672
     username: ${RABBITMQ_USER:user}
     password: ${RABBITMQ_PASSWORD:password}
+  
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: 6379
 
 jwt:
   secret: ${JWT_SECRET:8f8373b5c8793b827e8d38706d8a39a066ff059914757fc2580df14589d71c4c}
   expiration: 86400000 # 1 day
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://${ZIPKIN_HOST:localhost}:9411/api/v2/spans
 
 vonage:
   api:

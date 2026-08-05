@@ -15,6 +15,13 @@ public class GatewayApplication {
     }
 
     @Bean
+    public org.springframework.cloud.gateway.filter.ratelimit.KeyResolver ipKeyResolver() {
+        return exchange -> reactor.core.publisher.Mono.just(
+            exchange.getRequest().getRemoteAddress().getAddress().getHostAddress()
+        );
+    }
+
+    @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
             .route("user_service", r -> r.path("/api/auth/**", "/api/users/**")

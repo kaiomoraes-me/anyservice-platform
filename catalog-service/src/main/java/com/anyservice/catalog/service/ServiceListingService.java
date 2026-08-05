@@ -7,6 +7,8 @@ import com.anyservice.catalog.repository.ServiceListingRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +22,7 @@ public class ServiceListingService {
         this.repository = repository;
     }
 
+    @CacheEvict(value = "catalog", allEntries = true)
     public ServiceListingDto createListing(CreateServiceListingDto dto, Long providerId) {
         ServiceListing listing = new ServiceListing();
         listing.setTitle(dto.getTitle());
@@ -32,6 +35,7 @@ public class ServiceListingService {
         return mapToDto(listing);
     }
 
+    @Cacheable(value = "catalog")
     public List<ServiceListingDto> getAllListings() {
         return repository.findAll().stream()
                 .map(this::mapToDto)
@@ -56,6 +60,7 @@ public class ServiceListingService {
                 .collect(Collectors.toList());
     }
 
+    @CacheEvict(value = "catalog", allEntries = true)
     public ServiceListingDto updateListing(Long id, CreateServiceListingDto dto, Long providerId) {
         ServiceListing listing = repository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Serviço não encontrado"));
@@ -73,6 +78,7 @@ public class ServiceListingService {
         return mapToDto(listing);
     }
 
+    @CacheEvict(value = "catalog", allEntries = true)
     public void deleteListing(Long id, Long providerId) {
         ServiceListing listing = repository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Serviço não encontrado"));

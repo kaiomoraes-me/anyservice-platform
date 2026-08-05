@@ -14,6 +14,24 @@ services:
     networks:
       - anyservice_net
 
+  # Redis (Cache and Rate Limiting)
+  redis:
+    image: redis:7-alpine
+    container_name: anyservice_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - anyservice_net
+
+  # Zipkin (Distributed Tracing)
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: anyservice_zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - anyservice_net
+
   # API Gateway (Spring Cloud Gateway)
   api-gateway:
     build: 
@@ -28,8 +46,12 @@ services:
       - ORDER_SERVICE_HOST=order-service
       - CHAT_SERVICE_HOST=chat-service
       - NOTIFICATION_SERVICE_HOST=notification-service
+      - ZIPKIN_HOST=zipkin
+      - REDIS_HOST=redis
     depends_on:
       - rabbitmq
+      - zipkin
+      - redis
     restart: unless-stopped
     networks:
       - anyservice_net
@@ -44,9 +66,15 @@ services:
       - DB_PASSWORD=password
       - DB_NAME=anyservice_user
       - RABBITMQ_HOST=rabbitmq
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - ZIPKIN_HOST=zipkin
     depends_on:
       - db_user
       - rabbitmq
+      - zipkin
     networks:
       - anyservice_net
 
@@ -60,8 +88,12 @@ services:
       - DB_PASSWORD=password
       - DB_NAME=anyservice_catalog
       - RABBITMQ_HOST=rabbitmq
+      - ZIPKIN_HOST=zipkin
+      - REDIS_HOST=redis
     depends_on:
       - db_catalog
+      - zipkin
+      - redis
     networks:
       - anyservice_net
 
@@ -75,9 +107,11 @@ services:
       - DB_PASSWORD=password
       - DB_NAME=anyservice_order
       - RABBITMQ_HOST=rabbitmq
+      - ZIPKIN_HOST=zipkin
     depends_on:
       - db_order
       - rabbitmq
+      - zipkin
     networks:
       - anyservice_net
       
@@ -91,9 +125,11 @@ services:
       - DB_PASSWORD=password
       - DB_NAME=anyservice_chat
       - RABBITMQ_HOST=rabbitmq
+      - ZIPKIN_HOST=zipkin
     depends_on:
       - db_chat
       - rabbitmq
+      - zipkin
     networks:
       - anyservice_net
       
@@ -107,9 +143,11 @@ services:
       - DB_PASSWORD=password
       - DB_NAME=anyservice_notification
       - RABBITMQ_HOST=rabbitmq
+      - ZIPKIN_HOST=zipkin
     depends_on:
       - db_notification
       - rabbitmq
+      - zipkin
     networks:
       - anyservice_net
 
@@ -183,16 +221,6 @@ services:
       - "5436:5432"
     volumes:
       - postgres_notification_data:/var/lib/postgresql/data
-    networks:
-      - anyservice_net
-
-  # Local SMTP Testing Server (MailDev)
-  maildev:
-    image: maildev/maildev
-    container_name: anyservice_maildev
-    ports:
-      - "1080:1080" # Web UI
-      - "1025:1025" # SMTP Port
     networks:
       - anyservice_net
 

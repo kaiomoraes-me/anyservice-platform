@@ -1,0 +1,24 @@
+<div class="search-container">
+  <div class="search-input-wrapper">
+    <input 
+      type="text" 
+      [formControl]="searchControl" 
+      placeholder="Pesquisar..." 
+      class="search-input"
+    />
+  </div>
+
+  <div class="dropdown" *ngIf="searchControl.value && (results$ | async) as results">
+    <div class="dropdown-item" *ngFor="let user of results">
+      <img [src]="user.profilePictureUrl || 'assets/default-avatar.png'" alt="Profile" class="avatar">
+      <div class="user-info">
+        <span class="name">{{ user.name }}</span>
+        <span class="username">{{ '@' + user.username }}</span>
+      </div>
+    </div>
+    
+    <div class="no-results" *ngIf="results.length === 0 && !isSearching">
+      Nenhum usuário encontrado.
+    </div>
+  </div>
+</div>
