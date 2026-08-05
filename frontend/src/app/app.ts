@@ -61,9 +61,7 @@ export class App {
     }
   }
 
-  isAuthenticated(): boolean {
-    return this.auth.authState();
-  }
+  isAuthenticated = this.auth.authState;
 
   isProvider(): boolean {
     const user = this.auth.getUser();
